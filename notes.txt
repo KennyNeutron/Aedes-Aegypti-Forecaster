@@ -1,0 +1,1 @@
+libcamera-still -o test.jpg  --> testing the camera (picture)
