@@ -2,59 +2,17 @@ import subprocess
 import time
 import os
 import requests
+import json
+import cv2
 
 # Define constants
 API_KEY = "122aOY67jDoRdfvlcYg6"
-MODEL_ID = "mosquito_annotation/11"
-IMAGE_PATH = "images/sample_0001.jpg"
+MODEL_ID = "mosquito_custom/2"  # Combined project ID and version
+IMAGE_PATH = "images/sample_0002.jpg"
+OUTPUT_IMAGE_PATH = "images/output.jpg"
 
 
-# Check if the server is running
-def is_server_running():
-    try:
-        response = requests.get("http://localhost:9001")
-        return response.status_code == 200
-    except requests.ConnectionError:
-        return False
-
-
-# Wait for the server to start
-def wait_for_server():
-    print("Waiting for server to start...")
-    for _ in range(20):  # Wait up to 20 seconds
-        if is_server_running():
-            print("Server is running!")
-            return
-        time.sleep(1)
-    raise RuntimeError("Inference server failed to start.")
-
-
-# Install Inference CLI
-def install_inference_cli():
-    print("Installing inference-cli...")
-    try:
-        subprocess.run(["pip", "install", "inference-cli"], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing inference-cli: {e}")
-        raise
-
-
-# Start the inference server
-def start_inference_server():
-    if is_server_running():
-        print("Inference server is already running.")
-        return None
-    print("Starting inference server...")
-    process = subprocess.Popen(
-        ["inference", "server", "start"],
-        stdout=subprocess.DEVNULL,  # Redirect logs if needed
-        stderr=subprocess.DEVNULL,
-    )
-    wait_for_server()
-    return process
-
-
-# Run inference
+# Run inference and visualize predictions
 def run_inference(image_path):
     print(f"Running inference on {image_path}...")
     try:
@@ -75,32 +33,99 @@ def run_inference(image_path):
         )
         if result.returncode == 0:
             print("Inference successful:")
-            print(result.stdout)
+            raw_output = result.stdout.strip()
+            print(f"Raw Output:\n{raw_output}")
+
+            # Extract the JSON portion from the response
+            json_data = extract_json(raw_output)
+            if json_data:
+                predictions = json_data.get("predictions", [])
+                print(
+                    f"Total FAA detected: {len(predictions)}"
+                )  # Print count of FAA detections
+                visualize_predictions(image_path, predictions)
+            else:
+                print("Error: No valid JSON data found in the response.")
         else:
             print("Error during inference:")
             print(result.stderr)
+    except json.JSONDecodeError as e:
+        print(f"JSON Parsing Error: {e}")
     except Exception as e:
         print(f"Error running inference: {e}")
 
 
-# Stop the inference server
-def stop_inference_server(server_process):
-    if server_process:
-        print("Stopping inference server...")
-        server_process.terminate()
-        server_process.wait()
-    else:
-        print("No server process to stop.")
+# Function to extract JSON from mixed output
+def extract_json(raw_output):
+    try:
+        # Find the start and end indices of the JSON portion
+        json_start_index = raw_output.find("{")
+        if json_start_index != -1:
+            json_end_index = raw_output.rfind("}") + 1
+            json_string = raw_output[json_start_index:json_end_index]
+
+            # Print the extracted JSON string for debugging
+            print("Extracted JSON string:", json_string)
+
+            # Replace single quotes with double quotes for valid JSON
+            json_string = json_string.replace("'", '"')
+
+            return json.loads(json_string)
+        else:
+            print("No JSON found in the raw output.")
+            return None
+    except Exception as e:
+        print(f"Error extracting JSON: {e}")
+        return None
+
+
+# Visualize predictions on the image
+def visualize_predictions(image_path, predictions):
+    if not predictions:
+        print("No predictions to visualize.")
+        return
+
+    # Load the image
+    image = cv2.imread(image_path)
+    if image is None:
+        print(f"Error: Unable to read image {image_path}")
+        return
+
+    for prediction in predictions:
+        x = int(prediction["x"])
+        y = int(prediction["y"])
+        width = int(prediction["width"])
+        height = int(prediction["height"])
+        confidence = prediction["confidence"]
+        label = "FAA"  # Replace label with "FAA"
+
+        # Calculate bounding box coordinates
+        x1 = x - width // 2
+        y1 = y - height // 2
+        x2 = x + width // 2
+        y2 = y + height // 2
+
+        # Draw the bounding box with a new color (Red) and thinner line
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 1)
+
+        # Add label and confidence in red with a smaller font
+        text = f"{label}: {confidence:.2f}"
+        cv2.putText(
+            image, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1
+        )
+
+    # Save the output image
+    cv2.imwrite(OUTPUT_IMAGE_PATH, image)
+    print(f"Result saved to {OUTPUT_IMAGE_PATH}")
 
 
 # Main workflow
 if __name__ == "__main__":
     try:
-        install_inference_cli()
-        server_process = start_inference_server()
         if os.path.exists(IMAGE_PATH):
+            # Run inference on the original image
             run_inference(IMAGE_PATH)
         else:
             print(f"Image not found: {IMAGE_PATH}")
-    finally:
-        stop_inference_server(server_process if "server_process" in locals() else None)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
