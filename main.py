@@ -32,11 +32,11 @@ def capture_image():
 
     return image_path
 
-# Function to check time and capture image at exactly 7 AM
+# Function to check time and capture image at exactly 7 AM and 8 PM
 def schedule_capture():
     while True:
         now = rtc.datetime  # Get DS3231 RTC time
-        if now.tm_hour == 7 and now.tm_min == 0:  # Check if it's 7:00 AM
+        if (now.tm_hour == 7 and now.tm_min == 0) or (now.tm_hour == 20 and now.tm_min == 0):  # Check for 7:00 AM or 8:00 PM
             capture_image()
             time.sleep(60)  # Wait 1 minute to prevent multiple captures
         time.sleep(1)
