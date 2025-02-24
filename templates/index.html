@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Time & Temperature</title>
+    <title>Aa Forecaster</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,6 +30,18 @@
             margin-top: 15px;
             color: #555;
         }
+        .nav-links {
+            margin-top: 20px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            font-size: 18px;
+            padding: 10px 15px;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+            margin: 5px;
+        }
     </style>
 </head>
 <body>
@@ -38,7 +50,11 @@
         <p class="data">Time: <span id="time">Loading...</span></p>
         <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
         <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
+        <div class="nav-links">
+            <a href="/gallery">View Captured Images</a>
+        </div>
     </div>
+    
     <script>
         function updateData() {
             fetch("/data")
@@ -47,7 +63,6 @@
                     document.getElementById("time").textContent = data.time;
                     document.getElementById("temperature").textContent = data.temperature.toFixed(2);
                     
-                    // Calculate next capture time dynamically based on last capture
                     let currentHour = parseInt(data.time.split(" ")[1].split(":"[0]));
                     let nextCapture;
                     if (currentHour >= 20) {
