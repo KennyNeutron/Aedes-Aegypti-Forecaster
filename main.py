@@ -5,8 +5,6 @@ import time
 import os
 import threading
 import subprocess
-import cv2
-import numpy as np
 from datetime import datetime
 
 app = Flask(__name__)
@@ -21,68 +19,62 @@ INFERENCE_OUTPUT_FOLDER = "inference_output"
 os.makedirs(IMAGE_FOLDER, exist_ok=True)
 os.makedirs(INFERENCE_OUTPUT_FOLDER, exist_ok=True)
 
-# Function to overlay timestamp and temperature on image
-def overlay_text(image_path, text):
-    image = cv2.imread(image_path)
-    if image is None:
-        print(f"❌ Error: Unable to read image {image_path}")
+# Function to find the latest captured image
+def get_latest_image():
+    images = sorted(
+        [f for f in os.listdir(IMAGE_FOLDER) if f.endswith(".jpg")],
+        key=lambda x: os.path.getmtime(os.path.join(IMAGE_FOLDER, x)),
+        reverse=True,
+    )
+    return images[0] if images else None
+
+# Function to run inference on the latest image
+def run_inference():
+    latest_image = get_latest_image()
+    if not latest_image:
+        print("❌ No captured images found for inference.")
         return
-    
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    position = (50, 50)  # Position of text
-    font_scale = 1
-    font_color = (0, 0, 255)  # Red color
-    thickness = 2
-    
-    # Put text on the image
-    cv2.putText(image, text, position, font, font_scale, font_color, thickness, cv2.LINE_AA)
-    cv2.imwrite(image_path, image)
 
-# Function to capture an image using Raspberry Pi Camera Module 2
-def capture_image(time_period):
-    now = rtc.datetime  # Get time from DS3231
-    date_str = f"{now.tm_year}_{now.tm_mon:02d}_{now.tm_mday:02d}"
-    filename = f"{date_str}_{time_period}.jpg"
-    image_path = os.path.join(IMAGE_FOLDER, filename)
-    timestamp = f"{now.tm_year}-{now.tm_mon:02d}-{now.tm_mday:02d} {now.tm_hour:02d}:{now.tm_min:02d}:{now.tm_sec:02d}"
-    temperature = rtc.temperature
-    overlay_text_str = f"{timestamp} | Temp: {temperature:.2f}°C"
+    input_path = os.path.join(IMAGE_FOLDER, latest_image)
+    output_filename = f"output_{latest_image}"
+    output_path = os.path.join(INFERENCE_OUTPUT_FOLDER, output_filename)
 
-    # Use libcamera-still to capture an image
     try:
-        subprocess.run(["libcamera-still", "-o", image_path, "--width", "1920", "--height", "1080", "--timeout", "1"], check=True)
-        overlay_text(image_path, overlay_text_str)
-        print(f"✅ Image captured: {image_path}")
-        
-        # Schedule inference after 2 minutes
-        threading.Timer(120, run_inference, args=[image_path, filename]).start()
-    except Exception as e:
-        print(f"❌ Camera Error: {e}")
-
-    return image_path
-
-# Function to run inference
-def run_inference(image_path, filename):
-    output_filename = f"output_{filename}"
-    output_image_path = os.path.join(INFERENCE_OUTPUT_FOLDER, output_filename)
-    
-    try:
-        subprocess.run(["python3", "inference_hosted_api.py", image_path, output_image_path], check=True)
-        print(f"✅ Inference completed. Output saved at {output_image_path}")
-    except Exception as e:
+        print(f"🚀 Running inference on {input_path}...")
+        result = subprocess.run(
+            ["python3", "inference_hosted_api.py", input_path, output_path],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        print(f"✅ Inference completed. Output saved at {output_path}")
+        print(f"🔍 Inference Log:\n{result.stdout}")
+        if result.stderr:
+            print(f"⚠️ Inference Error Log:\n{result.stderr}")
+    except subprocess.CalledProcessError as e:
         print(f"❌ Inference Error: {e}")
+        print(f"⚠️ Error Output:\n{e.stderr}")
 
 # Function to check time and capture image at exactly 7 AM and 8 PM
 def schedule_capture():
     while True:
         now = rtc.datetime  # Get DS3231 RTC time
+
         if now.tm_hour == 7 and now.tm_min == 0:
-            capture_image("AM")
-            time.sleep(60)  # Wait 1 minute to prevent multiple captures
+            print("📸 Capturing image at 7:00 AM...")
+            run_inference_later()  # Schedule inference at 7:02 AM
+            time.sleep(60)
         elif now.tm_hour == 20 and now.tm_min == 0:
-            capture_image("PM")
-            time.sleep(60)  # Wait 1 minute to prevent multiple captures
+            print("📸 Capturing image at 8:00 PM...")
+            run_inference_later()  # Schedule inference at 8:02 PM
+            time.sleep(60)
+
         time.sleep(1)
+
+# Function to delay inference by 2 minutes
+def run_inference_later():
+    print("⏳ Scheduling inference in 2 minutes...")
+    threading.Timer(120, run_inference).start()
 
 # Start the scheduled capture function in a separate thread
 threading.Thread(target=schedule_capture, daemon=True).start()
