@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aedes aegypti Forecaster</title>
+    <title>Live Time & Temperature</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,7 +37,7 @@
         <h1>Raspberry Pi - DS3231 Sensor</h1>
         <p class="data">Time: <span id="time">Loading...</span></p>
         <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
-        <p class="capture-info">Next Capture: 07:00 AM</p>
+        <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
     </div>
     <script>
         function updateData() {
@@ -46,6 +46,18 @@
                 .then(data => {
                     document.getElementById("time").textContent = data.time;
                     document.getElementById("temperature").textContent = data.temperature.toFixed(2);
+                    
+                    // Calculate next capture time dynamically based on last capture
+                    let currentHour = parseInt(data.time.split(" ")[1].split(":"[0]));
+                    let nextCapture;
+                    if (currentHour >= 20) {
+                        nextCapture = "07:00 AM (Tomorrow)";
+                    } else if (currentHour >= 7) {
+                        nextCapture = "08:00 PM";
+                    } else {
+                        nextCapture = "07:00 AM";
+                    }
+                    document.getElementById("next-capture").textContent = nextCapture;
                 })
                 .catch(error => console.error("Error fetching data:", error));
         }
