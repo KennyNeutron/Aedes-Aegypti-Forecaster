@@ -4,7 +4,9 @@ import adafruit_ds3231
 import time
 import os
 import threading
-import subprocess
+import requests
+import cv2
+import numpy as np
 from datetime import datetime
 
 app = Flask(__name__)
@@ -18,6 +20,11 @@ IMAGE_FOLDER = "captured_images"
 INFERENCE_OUTPUT_FOLDER = "inference_output"
 os.makedirs(IMAGE_FOLDER, exist_ok=True)
 os.makedirs(INFERENCE_OUTPUT_FOLDER, exist_ok=True)
+
+# Roboflow API settings
+API_URL = "https://detect.roboflow.com"
+API_KEY = "122aOY67jDoRdfvlcYg6"
+MODEL_ID = "mosquito_faa/1"
 
 # Function to find the latest captured image
 def get_latest_image():
@@ -38,22 +45,49 @@ def run_inference():
     input_path = os.path.join(IMAGE_FOLDER, latest_image)
     output_filename = f"output_{latest_image}"
     output_path = os.path.join(INFERENCE_OUTPUT_FOLDER, output_filename)
-
+    
     try:
         print(f"🚀 Running inference on {input_path}...")
-        result = subprocess.run(
-            ["python3", "inference_hosted_api.py", input_path, output_path],
-            check=True,
-            capture_output=True,
-            text=True
+        response = requests.post(
+            f"{API_URL}/{MODEL_ID}?api_key={API_KEY}",
+            files={"file": open(input_path, "rb")}
         )
-        print(f"✅ Inference completed. Output saved at {output_path}")
-        print(f"🔍 Inference Log:\n{result.stdout}")
-        if result.stderr:
-            print(f"⚠️ Inference Error Log:\n{result.stderr}")
-    except subprocess.CalledProcessError as e:
+        
+        if response.status_code != 200:
+            print(f"❌ Error: Failed to process image - {response.text}")
+            return
+        
+        result = response.json()
+        predictions = result.get("predictions", [])
+        faa_count = len(predictions)
+        print(f"✅ Total FAA detected: {faa_count}")
+        
+        image = cv2.imread(input_path)
+        if image is None:
+            print(f"❌ Error: Unable to read input image {input_path}")
+            return
+
+        for pred in predictions:
+            x, y, width, height = (
+                int(pred["x"]), int(pred["y"]), int(pred["width"]), int(pred["height"])
+            )
+            confidence = pred["confidence"]
+            label = "FAA"
+            
+            x1, y1, x2, y2 = x - width // 2, y - height // 2, x + width // 2, y + height // 2
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+            text = f"{label}: {confidence:.2f}"
+            cv2.putText(image, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        info_text = f"{timestamp} | FAA Count: {faa_count}"
+        cv2.putText(image, info_text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+        cv2.imwrite(output_path, image)
+        print(f"✅ Inference result saved at {output_path}")
+    
+    except Exception as e:
         print(f"❌ Inference Error: {e}")
-        print(f"⚠️ Error Output:\n{e.stderr}")
 
 # Function to check time and capture image at exactly 7 AM and 8 PM
 def schedule_capture():
@@ -102,10 +136,12 @@ def get_captured_image(filename):
 
 @app.route('/data')
 def get_sensor_data():
-    """API endpoint to fetch time & temperature from DS3231."""
-    rtc_time = rtc.datetime
+    """API endpoint to fetch time & temperature from DS3231 RTC."""
+    rtc_time = rtc.datetime  # Ensure we fetch DS3231 time directly
     formatted_time = f"{rtc_time.tm_year}-{rtc_time.tm_mon:02d}-{rtc_time.tm_mday:02d} {rtc_time.tm_hour:02d}:{rtc_time.tm_min:02d}:{rtc_time.tm_sec:02d}"
-    temperature = rtc.temperature
+    temperature = rtc.temperature  # Read temperature from DS3231
+    
+    print(f"📡 DS3231 Time Sent to UI: {formatted_time}")  # Debugging log
     return jsonify({"time": formatted_time, "temperature": temperature})
 
 if __name__ == '__main__':
