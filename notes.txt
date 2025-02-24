@@ -1,4 +1,5 @@
 libcamera-still -o test.jpg  --> testing the camera (picture)
 
 
--inference is now working on RPi
+- inference is now working on RPi
+- 
