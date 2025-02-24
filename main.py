@@ -15,9 +15,11 @@ app = Flask(__name__)
 i2c = board.I2C()
 rtc = adafruit_ds3231.DS3231(i2c)
 
-# Define folder for saving images
+# Define folders for saving images
 IMAGE_FOLDER = "captured_images"
+INFERENCE_OUTPUT_FOLDER = "inference_output"
 os.makedirs(IMAGE_FOLDER, exist_ok=True)
+os.makedirs(INFERENCE_OUTPUT_FOLDER, exist_ok=True)
 
 # Function to overlay timestamp and temperature on image
 def overlay_text(image_path, text):
@@ -44,17 +46,31 @@ def capture_image(time_period):
     image_path = os.path.join(IMAGE_FOLDER, filename)
     timestamp = f"{now.tm_year}-{now.tm_mon:02d}-{now.tm_mday:02d} {now.tm_hour:02d}:{now.tm_min:02d}:{now.tm_sec:02d}"
     temperature = rtc.temperature
-    overlay_text_str = f"{timestamp} | Temp: {temperature:.2f}degC"
+    overlay_text_str = f"{timestamp} | Temp: {temperature:.2f}°C"
 
     # Use libcamera-still to capture an image
     try:
         subprocess.run(["libcamera-still", "-o", image_path, "--width", "1920", "--height", "1080", "--timeout", "1"], check=True)
         overlay_text(image_path, overlay_text_str)
         print(f"✅ Image captured: {image_path}")
+        
+        # Schedule inference after 2 minutes
+        threading.Timer(120, run_inference, args=[image_path, filename]).start()
     except Exception as e:
         print(f"❌ Camera Error: {e}")
 
     return image_path
+
+# Function to run inference
+def run_inference(image_path, filename):
+    output_filename = f"output_{filename}"
+    output_image_path = os.path.join(INFERENCE_OUTPUT_FOLDER, output_filename)
+    
+    try:
+        subprocess.run(["python3", "inference_hosted_api.py", image_path, output_image_path], check=True)
+        print(f"✅ Inference completed. Output saved at {output_image_path}")
+    except Exception as e:
+        print(f"❌ Inference Error: {e}")
 
 # Function to check time and capture image at exactly 7 AM and 8 PM
 def schedule_capture():
