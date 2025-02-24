@@ -3,9 +3,9 @@ import board
 import adafruit_ds3231
 import time
 import os
-import cv2
-from datetime import datetime
 import threading
+import subprocess
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -17,25 +17,19 @@ rtc = adafruit_ds3231.DS3231(i2c)
 IMAGE_FOLDER = "captured_images"
 os.makedirs(IMAGE_FOLDER, exist_ok=True)
 
-# Function to capture an image with timestamp
+# Function to capture an image using Raspberry Pi Camera Module 2
 def capture_image():
     now = rtc.datetime  # Get time from DS3231
     filename = f"{now.tm_year}-{now.tm_mon:02d}-{now.tm_mday:02d}_{now.tm_hour:02d}-{now.tm_min:02d}-{now.tm_sec:02d}.jpg"
     image_path = os.path.join(IMAGE_FOLDER, filename)
-    
-    # Capture image using Raspberry Pi Camera
+
+    # Use libcamera-still to capture an image
     try:
-        camera = cv2.VideoCapture(0)  # Use the Pi Camera
-        ret, frame = camera.read()
-        if ret:
-            cv2.imwrite(image_path, frame)
-            print(f"✅ Image captured: {image_path}")
-        else:
-            print("❌ Error: Failed to capture image")
-        camera.release()
+        subprocess.run(["libcamera-still", "-o", image_path, "--width", "1920", "--height", "1080", "--timeout", "1"], check=True)
+        print(f"✅ Image captured: {image_path}")
     except Exception as e:
         print(f"❌ Camera Error: {e}")
-    
+
     return image_path
 
 # Function to check time and capture image at exactly 7 AM
