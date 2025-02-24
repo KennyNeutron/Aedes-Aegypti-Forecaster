@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 import board
 import adafruit_ds3231
 import time
@@ -9,14 +9,17 @@ app = Flask(__name__)
 i2c = board.I2C()
 rtc = adafruit_ds3231.DS3231(i2c)
 
+@app.route('/')
+def home():
+    """Serve the HTML UI."""
+    return render_template("index.html")
 
-@app.route("/data")
+@app.route('/data')
 def get_sensor_data():
-    """API endpoint to fetch time & temperature from DS3231"""
+    """API endpoint to fetch time & temperature from DS3231."""
     current_time = time.strftime("%Y-%m-%d %H:%M:%S")
     temperature = rtc.temperature
     return jsonify({"time": current_time, "temperature": temperature})
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
