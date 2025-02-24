@@ -8,6 +8,7 @@ import requests
 import cv2
 import numpy as np
 from datetime import datetime
+import subprocess
 
 app = Flask(__name__)
 
@@ -26,31 +27,32 @@ API_URL = "https://detect.roboflow.com"
 API_KEY = "122aOY67jDoRdfvlcYg6"
 MODEL_ID = "mosquito_faa/1"
 
-# Function to find the latest captured image
-def get_latest_image():
-    images = sorted(
-        [f for f in os.listdir(IMAGE_FOLDER) if f.endswith(".jpg")],
-        key=lambda x: os.path.getmtime(os.path.join(IMAGE_FOLDER, x)),
-        reverse=True,
-    )
-    return images[0] if images else None
+# Function to capture an image using Raspberry Pi Camera Module 2
+def capture_image():
+    now = rtc.datetime  # Get DS3231 RTC time
+    date_str = f"{now.tm_year}_{now.tm_mon:02d}_{now.tm_mday:02d}"
+    time_period = "AM" if now.tm_hour < 12 else "PM"
+    filename = f"{date_str}_{time_period}.jpg"
+    image_path = os.path.join(IMAGE_FOLDER, filename)
 
-# Function to run inference on the latest image
-def run_inference():
-    latest_image = get_latest_image()
-    if not latest_image:
-        print("❌ No captured images found for inference.")
-        return
-
-    input_path = os.path.join(IMAGE_FOLDER, latest_image)
-    output_filename = f"output_{latest_image}"
-    output_path = os.path.join(INFERENCE_OUTPUT_FOLDER, output_filename)
-    
     try:
-        print(f"🚀 Running inference on {input_path}...")
+        print(f"📸 Capturing image: {image_path}...")
+        subprocess.run(["libcamera-still", "-o", image_path, "--width", "1920", "--height", "1080", "--timeout", "1"], check=True)
+        print(f"✅ Image saved: {image_path}")
+        run_inference_later(image_path, filename)  # Schedule inference in 2 minutes
+    except Exception as e:
+        print(f"❌ Camera Error: {e}")
+
+# Function to run inference on the captured image
+def run_inference(image_path, filename):
+    output_filename = f"output_{filename}"
+    output_path = os.path.join(INFERENCE_OUTPUT_FOLDER, output_filename)
+
+    try:
+        print(f"🚀 Running inference on {image_path}...")
         response = requests.post(
             f"{API_URL}/{MODEL_ID}?api_key={API_KEY}",
-            files={"file": open(input_path, "rb")}
+            files={"file": open(image_path, "rb")}
         )
         
         if response.status_code != 200:
@@ -62,9 +64,9 @@ def run_inference():
         faa_count = len(predictions)
         print(f"✅ Total FAA detected: {faa_count}")
         
-        image = cv2.imread(input_path)
+        image = cv2.imread(image_path)
         if image is None:
-            print(f"❌ Error: Unable to read input image {input_path}")
+            print(f"❌ Error: Unable to read input image {image_path}")
             return
 
         for pred in predictions:
@@ -89,26 +91,24 @@ def run_inference():
     except Exception as e:
         print(f"❌ Inference Error: {e}")
 
+# Function to delay inference by 2 minutes
+def run_inference_later(image_path, filename):
+    print("⏳ Scheduling inference in 2 minutes...")
+    threading.Timer(120, run_inference, args=[image_path, filename]).start()
+
 # Function to check time and capture image at exactly 7 AM and 8 PM
 def schedule_capture():
     while True:
         now = rtc.datetime  # Get DS3231 RTC time
 
         if now.tm_hour == 7 and now.tm_min == 0:
-            print("📸 Capturing image at 7:00 AM...")
-            run_inference_later()  # Schedule inference at 7:02 AM
+            capture_image()
             time.sleep(60)
         elif now.tm_hour == 20 and now.tm_min == 0:
-            print("📸 Capturing image at 8:00 PM...")
-            run_inference_later()  # Schedule inference at 8:02 PM
+            capture_image()
             time.sleep(60)
 
         time.sleep(1)
-
-# Function to delay inference by 2 minutes
-def run_inference_later():
-    print("⏳ Scheduling inference in 2 minutes...")
-    threading.Timer(120, run_inference).start()
 
 # Start the scheduled capture function in a separate thread
 threading.Thread(target=schedule_capture, daemon=True).start()
