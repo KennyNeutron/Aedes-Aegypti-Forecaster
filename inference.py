@@ -5,10 +5,10 @@ import requests
 import json
 import cv2
 
-# Define constants
+
 API_KEY = "122aOY67jDoRdfvlcYg6"
-MODEL_ID = "mosquito_custom/2"  # Combined project ID and version
-IMAGE_PATH = "images/sample_0003.jpg"
+MODEL_ID = "mosquito_custom/2"
+IMAGE_PATH = "images/sample_0002.jpg"
 OUTPUT_IMAGE_PATH = "images/output.jpg"
 
 
