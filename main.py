@@ -81,13 +81,11 @@ def run_inference(image_path, filename):
             text = f"{label}: {confidence:.2f}"
             cv2.putText(image, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
-        # Get DS3231 time and temperature for overlay
         rtc_time = rtc.datetime
         formatted_time = f"{rtc_time.tm_year}-{rtc_time.tm_mon:02d}-{rtc_time.tm_mday:02d} {rtc_time.tm_hour:02d}:{rtc_time.tm_min:02d}:{rtc_time.tm_sec:02d}"
         temperature = rtc.temperature
-        info_text = f"{formatted_time} | FAA Count: {faa_count} | Temp: {temperature:.2f}°C"
-        
-        # Overlay timestamp, FAA count, and temperature
+        #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        info_text = f"{formatted_time} | Temp: {temperature} degC | FAA Count: {faa_count}"
         cv2.putText(image, info_text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         cv2.imwrite(output_path, image)
@@ -117,6 +115,37 @@ def schedule_capture():
 
 # Start the scheduled capture function in a separate thread
 threading.Thread(target=schedule_capture, daemon=True).start()
+
+@app.route('/')
+def home():
+    """Serve the HTML UI."""
+    return render_template("index.html")
+
+@app.route('/gallery')
+def gallery():
+    """Serve the gallery page."""
+    return render_template("gallery.html")
+
+@app.route('/captured_images')
+def list_captured_images():
+    """API endpoint to list captured images."""
+    files = [f"/captured_images/{f}" for f in os.listdir(IMAGE_FOLDER) if f.endswith(".jpg")]
+    return jsonify({"images": files})
+
+@app.route('/captured_images/<filename>')
+def get_captured_image(filename):
+    """Serve individual images."""
+    return send_from_directory(IMAGE_FOLDER, filename)
+
+@app.route('/data')
+def get_sensor_data():
+    """API endpoint to fetch time & temperature from DS3231 RTC."""
+    rtc_time = rtc.datetime  # Ensure we fetch DS3231 time directly
+    formatted_time = f"{rtc_time.tm_year}-{rtc_time.tm_mon:02d}-{rtc_time.tm_mday:02d} {rtc_time.tm_hour:02d}:{rtc_time.tm_min:02d}:{rtc_time.tm_sec:02d}"
+    temperature = rtc.temperature  # Read temperature from DS3231
+    
+    print(f"📡 DS3231 Time Sent to UI: {formatted_time}")  # Debugging log
+    return jsonify({"time": formatted_time, "temperature": temperature})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
