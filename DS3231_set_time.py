@@ -6,8 +6,15 @@ import adafruit_ds3231
 i2c = board.I2C()
 rtc = adafruit_ds3231.DS3231(i2c)
 
-# Set the current time (Adjust accordingly)
-new_time = time.struct_time((2025, 2, 8, 14, 30, 0, 0, -1, -1))
-rtc.datetime = new_time
+# Ask user for new time input
+user_input = input("Enter the new time (YYYY-MM-DD HH:MM:SS): ")
 
-print("DS3231 Time Updated Successfully!")
+try:
+    # Convert user input to struct_time
+    new_time_struct = time.strptime(user_input, "%Y-%m-%d %H:%M:%S")
+    
+    # Set the DS3231 time
+    rtc.datetime = new_time_struct
+    print("✅ DS3231 Time Updated Successfully!")
+except ValueError:
+    print("❌ Invalid format! Please enter the date and time in YYYY-MM-DD HH:MM:SS format.")

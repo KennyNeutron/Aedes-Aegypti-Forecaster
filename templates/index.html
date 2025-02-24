@@ -1,56 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Time & Temperature</title>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #f4f4f4;
-        margin: 50px;
-      }
-      .container {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        display: inline-block;
-      }
-      h1 {
-        color: #333;
-      }
-      .data {
-        font-size: 24px;
-        margin-top: 10px;
-      }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 50px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+        }
+        h1 {
+            color: #333;
+        }
+        .data {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        .capture-info {
+            font-size: 18px;
+            margin-top: 15px;
+            color: #555;
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <div class="container">
-      <h1>Raspberry Pi - DS3231 Sensor</h1>
-      <p class="data">Time: <span id="time">Loading...</span></p>
-      <p class="data">
-        Temperature: <span id="temperature">Loading...</span> °C
-      </p>
+        <h1>Raspberry Pi - DS3231 Sensor</h1>
+        <p class="data">Time: <span id="time">Loading...</span></p>
+        <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
+        <p class="capture-info">Next Capture: 07:00 AM</p>
     </div>
-
     <script>
-      function updateData() {
-        fetch("/data")
-          .then((response) => response.json())
-          .then((data) => {
-            document.getElementById("time").textContent = data.time;
-            document.getElementById("temperature").textContent =
-              data.temperature.toFixed(2);
-          })
-          .catch((error) => console.error("Error fetching data:", error));
-      }
-
-      // Update data every 2 seconds
-      setInterval(updateData, 2000);
-      updateData();
+        function updateData() {
+            fetch("/data")
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("time").textContent = data.time;
+                    document.getElementById("temperature").textContent = data.temperature.toFixed(2);
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+        setInterval(updateData, 2000);
+        updateData();
     </script>
-  </body>
+</body>
 </html>
