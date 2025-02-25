@@ -7,9 +7,26 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             background-color: #f4f4f4;
-            margin: 50px;
+            margin: 0;
+        }
+        header {
+            background-color: #007BFF;
+            padding: 15px;
+            color: white;
+            text-align: center;
+        }
+        header a {
+            color: white;
+            font-size: 18px;
+            text-decoration: none;
+            padding: 10px 15px;
+            margin: 0 10px;
+            border-radius: 5px;
+            background-color: #0056b3;
+        }
+        header a:hover {
+            background-color: #003d80;
         }
         .container {
             background: white;
@@ -17,6 +34,9 @@
             border-radius: 10px;
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
             display: inline-block;
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
         }
         h1 {
             color: #333;
@@ -30,55 +50,47 @@
             margin-top: 15px;
             color: #555;
         }
-        .nav-links {
-            margin-top: 20px;
-        }
-        .nav-links a {
-            text-decoration: none;
-            font-size: 18px;
-            padding: 10px 15px;
-            background: #007BFF;
-            color: white;
-            border-radius: 5px;
-            margin: 5px;
-        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Raspberry Pi - DS3231 Sensor</h1>
-        <p class="data">Time: <span id="time">Loading...</span></p>
-        <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
-        <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
-        <div class="nav-links">
-            <a href="/gallery" class="nav-link">View Captured Images</a>
-            <a href="/inference_output" class="nav-link">View Inference Results</a>
-        </div>
-    </div>
-    
-    <script>
-        function updateData() {
-            fetch("/data")
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("time").textContent = data.time;
-                    document.getElementById("temperature").textContent = data.temperature.toFixed(2);
-                    
-                    let currentHour = parseInt(data.time.split(" ")[1].split(":"[0]));
-                    let nextCapture;
-                    if (currentHour >= 20) {
-                        nextCapture = "07:00 AM (Tomorrow)";
-                    } else if (currentHour >= 7) {
-                        nextCapture = "08:00 PM";
-                    } else {
-                        nextCapture = "07:00 AM";
-                    }
-                    document.getElementById("next-capture").textContent = nextCapture;
-                })
-                .catch(error => console.error("Error fetching data:", error));
-        }
-        setInterval(updateData, 2000);
-        updateData();
-    </script>
+
+<header>
+    <a href="/">Home</a>
+    <a href="/gallery">GALLERY</a>
+    <a href="/inference_output">INFERENCE</a>
+</header>
+
+<div class="container">
+    <h1>Aedes aegypti Forecaster</h1>
+    <p class="data">Time: <span id="time">Loading...</span></p>
+    <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
+    <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
+</div>
+
+<script>
+    function updateData() {
+        fetch("/data")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("time").textContent = data.time;
+                document.getElementById("temperature").textContent = data.temperature.toFixed(2);
+
+                let currentHour = parseInt(data.time.split(" ")[1].split(":")[0]);
+                let nextCapture;
+                if (currentHour >= 20) {
+                    nextCapture = "07:00 AM (Tomorrow)";
+                } else if (currentHour >= 7) {
+                    nextCapture = "08:00 PM";
+                } else {
+                    nextCapture = "07:00 AM";
+                }
+                document.getElementById("next-capture").textContent = nextCapture;
+            })
+            .catch(error => console.error("Error fetching data:", error));
+    }
+    setInterval(updateData, 2000);
+    updateData();
+</script>
+
 </body>
 </html>
