@@ -6,3 +6,6 @@ libcamera-still -o test.jpg  --> testing the camera (picture)
 
 LIVE SHARE:
 https://prod.liveshare.vsengsaas.visualstudio.com/join?1A83ACFA79EC1B65FECFA04BF811F0592742
+
+//From RPi
+https://prod.liveshare.vsengsaas.visualstudio.com/join?C9A6EEB3651FA19543266F8DA61910271AD4
