@@ -1,4 +1,10 @@
 /* styles.css */
+@font-face {
+    font-family: 'Bebas';
+    src: url('fonts/BebasNeue-Regular.ttf') format('truetype');
+}
+
+
 body {
     margin: 0;
     padding: 0;
@@ -108,20 +114,23 @@ h1, h2, h3, p {
 }
 
 .clock {
+    font-family: 'Bebas Neue', monospace; /* Now using Google Font */
+    font-size: 150px; /* Large size for better visibility */
     text-align: center;
-    font-size: 48px; /* Large font size for visibility */
-    color: white;
+    color: red;
     position: fixed;
-    top: 50px; /* Ensure it's just below the header */
+    top: 50px; /* Adjust if necessary */
     left: 0;
-    right: 0; /* Centers clock horizontally */
+    right: 0;
     background: transparent;
     padding: 15px 0;
     z-index: 1040;
-    display: flex; /* Flexbox to center content */
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+
+
 
 .data {
     font-size: 18px; /* Slightly smaller than the clock for visual hierarchy */
@@ -130,11 +139,12 @@ h1, h2, h3, p {
 }
 
 .full-height {
-    padding: 10px;  // Reduce padding if it's too high
-    margin: 0 auto;  // Ensure it centers without adding vertical space
-    display: flex;  // Ensures content is flexibly aligned
-    flex-direction: column;  // Stacks children vertically
-    justify-content: center;  // Centers content vertically within the container
-    align-items: center;  // Centers content horizontally
-    height: auto;  // Adjust height to only be as tall as the content requires
+    padding: 10px;  
+    margin: 0 auto;  
+    display: flex;  
+    flex-direction: column;  
+    justify-content: center;  
+    align-items: center;  
+    height: auto; 
 }
+
