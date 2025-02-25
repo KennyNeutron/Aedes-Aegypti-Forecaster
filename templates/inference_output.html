@@ -1,73 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inference Results</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            margin: 50px;
-        }
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
-        }
-        h1 {
-            color: #333;
-        }
-        .gallery {
-            margin-top: 20px;
-        }
-        .gallery img {
-            width: 500px;
-            height: auto;
-            display: none;
-        }
-        .gallery img.active {
-            display: block;
-        }
-        .gallery p {
-            color: #666;
-            font-size: 14px;
-        }
-        .nav-buttons {
-            margin-top: 10px;
-        }
-        button {
-            padding: 10px 15px;
-            font-size: 16px;
-            margin: 5px;
-            cursor: pointer;
-        }
-        .back-link {
-            margin-top: 20px;
-            display: block;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 10px 15px;
-            background: #007BFF;
-            color: white;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Inference Output</h1>
-        <div class="gallery" id="gallery"></div>
-        <div class="nav-buttons">
-            <button onclick="prevImage()">&#9665; Previous</button>
-            <button onclick="nextImage()">Next &#9655;</button>
-        </div>
-        <a href="/" class="back-link">Back to Home</a>
+{% extends "base.html" %}
+
+{% block title %}Inference{% endblock %}
+
+{% block content %}
+    <h1>Inference Output</h1>
+    <div class="gallery" id="gallery"></div>
+    <div class="nav-buttons">
+        <button onclick="prevImage()">&#9665; Previous</button>
+        <button onclick="nextImage()">Next &#9655;</button>
     </div>
-    
+    <a href="/" class="back-link">Back to Home</a>
+
     <script>
         let images = [];
         let currentIndex = 0;
@@ -87,16 +30,15 @@
             gallery.innerHTML = "";
             if (images.length > 0) {
                 let img = document.createElement("img");
-                img.src = images[currentIndex];  // Make sure this path is correct
+                img.src = images[currentIndex];
                 img.classList.add("active");
                 gallery.appendChild(img);
 
                 let filename = document.createElement("p");
-                filename.textContent = "Filename: " + images[currentIndex].split('/').pop();
+                filename.textContent = "Filename: " + images[currentIndex].split('/').pop(); // To display only the filename
                 gallery.appendChild(filename);
             }
         }
-
 
         function prevImage() {
             if (images.length > 0) {
@@ -114,5 +56,4 @@
 
         loadImages();
     </script>
-</body>
-</html>
+{% endblock %}
