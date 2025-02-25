@@ -1,23 +1,26 @@
 /* styles.css */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #121212; /* Dark background for the body */
-    color: #e0e0e0; /* Light text color */
     margin: 0;
-    padding-top: 60px; /* Space for fixed header */
+    padding: 0;
+    padding-top: 100px; /* Add padding to top to push content below fixed header */
+    background-color: #121212; /* Ensure the body has a uniform background */
+    font-family: Arial, sans-serif;
+    color: #e0e0e0;
+    height: 100%; /* Full height to cover entire viewport area */
 }
 
+
 header {
-    background-color: #333; /* Darker background for the header */
-    padding: 3px;
+    background-color: #333;
+    padding: 5px 10px;
     color: white;
-    text-align: center; /* Change this to justify-content if you want to align links */
-    display: flex; /* Using flexbox to align links */
-    justify-content: flex-end; /* Aligns children (links) to the end (right) */
+    display: flex;
+    justify-content: flex-end; /* Aligns children to the end (right side) */
+    align-items: center;
     width: 100%;
-    top: 0;
-    z-index: 1000;
     position: fixed;
+    top: 0;
+    z-index: 1050; /* Ensure it stays on top */
 }
 
 header a {
@@ -36,19 +39,28 @@ header a:hover {
 
 
 .container {
-    background: #222;
-    margin-top: 80px;
-    padding: 20px;
+    background-color: #222; /* Clear and explicit background color */
+    padding: 10px;
+    margin: 120px auto 0; /* Adjust margin to give space below the clock */
     border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
-    width: 100%;
+    width: 80%; /* Adjust width as needed */
     max-width: 800px;
-    margin: 20px auto;
     text-align: center;
-    display: flex; /* Ensures flex properties */
-    justify-content: center; /* Center content horizontally */
-    align-items: center; /* Center content vertically */
-    flex-direction: column; /* Stack children vertically */
+    position: relative; /* Ensure standard positioning */
+    z-index: 100; /* Lower than fixed elements */
+}
+
+.container.index-specific {
+    background-color: #222; /* Explicit background color */
+    padding: 1px; /* Top and bottom padding is 20px, left and right padding is 0 */
+    margin: 10px auto; /* Margin to give space below the clock */
+    border-radius: 10px;
+    box-shadow: none; /* Optional: Remove shadow if not necessary */
+    width: 80%; /* Adjust width as needed */
+    max-width: 800px;
+    text-align: center;
+    position: relative; /* Standard positioning */
+    z-index: 100; /* Lower than fixed elements */
 }
 
 h1, h2, h3, p {
@@ -98,18 +110,31 @@ h1, h2, h3, p {
 .clock {
     text-align: center;
     font-size: 48px; /* Large font size for visibility */
-    padding: 10px 0; /* Adequate padding around the text */
-    width: 100%; /* Full width to span across the page */
-    position: fixed; /* Fixed positioning to keep it at the top */
-    top: 0; /* Positioned at the top */
-    left: 0; /* Aligned to the left */
-    color: white; /* High contrast text color for visibility */
-    background: transparent; /* Keeping background transparent */
-    z-index: 9999; /* High z-index to ensure it's above other content */
+    color: white;
+    position: fixed;
+    top: 50px; /* Ensure it's just below the header */
+    left: 0;
+    right: 0; /* Centers clock horizontally */
+    background: transparent;
+    padding: 15px 0;
+    z-index: 1040;
+    display: flex; /* Flexbox to center content */
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
 }
 
 .data {
     font-size: 18px; /* Slightly smaller than the clock for visual hierarchy */
     text-align: center; /* Ensures data is centered */
     margin: 5px 0; /* Provides spacing around each data element */
+}
+
+.full-height {
+    padding: 10px;  // Reduce padding if it's too high
+    margin: 0 auto;  // Ensure it centers without adding vertical space
+    display: flex;  // Ensures content is flexibly aligned
+    flex-direction: column;  // Stacks children vertically
+    justify-content: center;  // Centers content vertically within the container
+    align-items: center;  // Centers content horizontally
+    height: auto;  // Adjust height to only be as tall as the content requires
 }

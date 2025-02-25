@@ -3,28 +3,26 @@
 {% block title %}Aa Forecaster - Home{% endblock %}
 
 {% block content %}
-    <!-- Clock placed outside the main container for prominence -->
+    <!-- Clock placed correctly above all content for prominence -->
     <div class="clock">
         <span id="time">Loading...</span>
     </div>
 
-    <div class="container">
+    <div class="container index-specific">
         <h1>Aedes aegypti Forecaster</h1>
         <p class="data">Date: <span id="date">Loading...</span></p>
         <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
         <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
     </div>
-
+    
     <script>
         function updateData() {
             fetch("/data")
                 .then(response => response.json())
                 .then(data => {
-                    // Extract and display only the time part
                     let splitDateTime = data.time.split(" ");
-                    document.getElementById("time").textContent = splitDateTime[1]; // Only the time
-                    document.getElementById("date").textContent = splitDateTime[0]; // Only the date
-
+                    document.getElementById("time").textContent = splitDateTime[1];
+                    document.getElementById("date").textContent = splitDateTime[0];
                     document.getElementById("temperature").textContent = data.temperature.toFixed(2);
 
                     let currentHour = parseInt(splitDateTime[1].split(":")[0]);
