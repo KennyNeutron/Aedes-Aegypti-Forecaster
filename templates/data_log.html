@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container_datalog">
+    <h1>Mosquito Data Log</h1>
+    <table>
+        <tr>
+            <th>Date and Time</th>
+            <th>FAA Count</th>
+            <th>Temperature</th>
+        </tr>
+        {% for row in data %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

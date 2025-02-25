@@ -28,6 +28,9 @@ API_URL = "https://detect.roboflow.com"
 API_KEY = "122aOY67jDoRdfvlcYg6"
 MODEL_ID = "mosquito_faa/1"
 
+# Ensure the database path is correct
+DATABASE_PATH = 'FAA_DB.db'
+
 # Function to capture an image using Raspberry Pi Camera Module 2
 def capture_image():
     now = rtc.datetime  # Get DS3231 RTC time
@@ -181,6 +184,18 @@ def list_inference_images():
 def get_inference_image(filename):
     """Serve individual inference images."""
     return send_from_directory(INFERENCE_OUTPUT_FOLDER, filename)
+
+
+
+@app.route('/data-log')
+def data_log():
+    """Serve the Data Log page."""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT datetime, faa_count, temperature FROM MosquitoData ORDER BY datetime DESC")
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('data_log.html', data=data)
 
 
 if __name__ == '__main__':

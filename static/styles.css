@@ -13,6 +13,7 @@ body {
     font-family: Arial, sans-serif;
     color: #e0e0e0;
     height: 100%; /* Full height to cover entire viewport area */
+    overflow: auto;
 }
 
 
@@ -47,7 +48,8 @@ header a:hover {
 .container {
     background-color: #222; /* Clear and explicit background color */
     padding: 10px;
-    margin: 120px auto 0; /* Adjust margin to give space below the clock */
+    margin: auto;
+    margin-top: 3px;
     border-radius: 10px;
     width: 80%; /* Adjust width as needed */
     max-width: 800px;
@@ -56,16 +58,16 @@ header a:hover {
     z-index: 100; /* Lower than fixed elements */
 }
 
-.container.index-specific {
-    background-color: #222; /* Explicit background color */
-    padding: 1px; /* Top and bottom padding is 20px, left and right padding is 0 */
-    margin: 10px auto; /* Margin to give space below the clock */
+.thiscontain {
+    background-color: #222; /* Clear and explicit background color */
+    padding: 10px;
+    margin: auto;
+    margin-top: 120px;
     border-radius: 10px;
-    box-shadow: none; /* Optional: Remove shadow if not necessary */
     width: 80%; /* Adjust width as needed */
     max-width: 800px;
     text-align: center;
-    position: relative; /* Standard positioning */
+    position: relative; /* Ensure standard positioning */
     z-index: 100; /* Lower than fixed elements */
 }
 
@@ -77,7 +79,7 @@ h1, h2, h3, p {
     width: 100%; /* Responsive width */
     max-width: 800px; /* Maximum width */
     height: auto; /* Adjust height based on content */
-    overflow: hidden;
+    overflow: auto;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -148,3 +150,52 @@ h1, h2, h3, p {
     height: auto; 
 }
 
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    background-color: #333;
+}
+
+nav ul li {
+    float: left;
+}
+
+nav ul li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    background-color: #555;
+}
+
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #eee;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
+.container_datalog{
+    width: 80%;
+    margin: 20px auto;
+    padding: 10px;
+    background-color: #222;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #000;
+    text-align: center;
+}

@@ -1,44 +1,62 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Aa Forecaster - Home</title>
+        <link rel="stylesheet" href="/static/styles.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
 
-{% block title %}Aa Forecaster - Home{% endblock %}
+    </head>
+    <body>
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/gallery">Gallery</a></li>
+                    <li><a href="/inference">Inference</a></li>
+                    <li><a href="/data-log">DataLog</a></li>
+                </ul>
+            </nav>
+        </header>
 
-{% block content %}
-    <!-- Clock placed correctly above all content for prominence -->
-    <div class="clock">
-        <span id="time">Loading...</span>
-    </div>
+        <div class="clock">
+            <span id="time">Loading...</span>
+        </div>
 
-    <div class="container index-specific">
-        <h1>Aedes aegypti Forecaster</h1>
-        <p class="data">Date: <span id="date">Loading...</span></p>
-        <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
-        <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
-    </div>
-    
-    <script>
-        function updateData() {
-            fetch("/data")
-                .then(response => response.json())
-                .then(data => {
-                    let splitDateTime = data.time.split(" ");
-                    document.getElementById("time").textContent = splitDateTime[1];
-                    document.getElementById("date").textContent = splitDateTime[0];
-                    document.getElementById("temperature").textContent = data.temperature.toFixed(2);
+        <div class="thiscontain">
+            <h1>Aedes aegypti Forecaster</h1>
+            <p class="data">Date: <span id="date">Loading...</span></p>
+            <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
+            <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
+        </div>
+        
+        <script>
+            function updateData() {
+                fetch("/data")
+                    .then(response => response.json())
+                    .then(data => {
+                        let splitDateTime = data.time.split(" ");
+                        document.getElementById("time").textContent = splitDateTime[1];
+                        document.getElementById("date").textContent = splitDateTime[0];
+                        document.getElementById("temperature").textContent = data.temperature.toFixed(2);
 
-                    let currentHour = parseInt(splitDateTime[1].split(":")[0]);
-                    let nextCapture;
-                    if (currentHour >= 20) {
-                        nextCapture = "07:00 AM (Tomorrow)";
-                    } else if (currentHour >= 7) {
-                        nextCapture = "08:00 PM";
-                    } else {
-                        nextCapture = "07:00 AM";
-                    }
-                    document.getElementById("next-capture").textContent = nextCapture;
-                })
-                .catch(error => console.error("Error fetching data:", error));
-        }
-        setInterval(updateData, 2000);
-        updateData();
-    </script>
-{% endblock %}
+                        let currentHour = parseInt(splitDateTime[1].split(":")[0]);
+                        let nextCapture;
+                        if (currentHour >= 20) {
+                            nextCapture = "07:00 AM (Tomorrow)";
+                        } else if (currentHour >= 7) {
+                            nextCapture = "08:00 PM";
+                        } else {
+                            nextCapture = "07:00 AM";
+                        }
+                        document.getElementById("next-capture").textContent = nextCapture;
+                    })
+                    .catch(error => console.error("Error fetching data:", error));
+            }
+            setInterval(updateData, 2000);
+            updateData();
+        </script>
+    </body>
+</html>
