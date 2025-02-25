@@ -1,15 +1,23 @@
 /* styles.css */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: #121212; /* Dark background for the body */
+    color: #e0e0e0; /* Light text color */
     margin: 0;
+    padding-top: 70px; /* Space for fixed header */
 }
 
 header {
-    background-color: #007BFF;
-    padding: 15px;
+    background-color: #333; /* Darker background for the header */
+    padding: 3px;
     color: white;
-    text-align: center;
+    text-align: center; /* Change this to justify-content if you want to align links */
+    display: flex; /* Using flexbox to align links */
+    justify-content: flex-end; /* Aligns children (links) to the end (right) */
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    position: fixed;
 }
 
 header a {
@@ -17,54 +25,58 @@ header a {
     font-size: 18px;
     text-decoration: none;
     padding: 10px 15px;
-    margin: 0 10px;
-    border-radius: 5px;
-    background-color: #0056b3;
+    margin: 0 5px;
+    background-color: transparent; /* Make background transparent by default */
+    display: inline-block;
 }
 
 header a:hover {
-    background-color: #003d80;
+    background-color: #555; /* Visible background color on hover */
 }
 
+
 .container {
-    background: white;
+    background: #222;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-    display: inline-block;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
     width: 100%;
     max-width: 800px;
     margin: 20px auto;
     text-align: center;
+    display: flex; /* Ensures flex properties */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    flex-direction: column; /* Stack children vertically */
 }
 
-h1 {
-    color: #333;
+h1, h2, h3, p {
+    color: #ccc;
 }
 
 .gallery {
-    width: 800px;  /* Fixed width */
-    height: 600px; /* Fixed height plus extra space for the filename */
-    overflow: hidden; /* Prevents overflow */
+    width: 100%; /* Responsive width */
+    max-width: 800px; /* Maximum width */
+    height: auto; /* Adjust height based on content */
+    overflow: hidden;
     display: flex;
-    flex-direction: column; /* Stacks children vertically */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: 0 auto; /* Centers the gallery */
-    background-color: #eee; /* Optional: background color for the container */
-    padding-bottom: 20px; /* Space for the filename */
+    margin: 0 auto;
+    background-color: #333;
+    padding-bottom: 20px;
 }
 
 .gallery img {
     max-width: 100%;
-    max-height: 90%; /* Reduced max height to leave space for the filename */
-    object-fit: contain; /* Ensures the image is scaled correctly */
+    height: auto; /* Adjust height automatically */
+    object-fit: contain;
 }
 
 .gallery p {
-    margin-top: 5px; /* Margin above the filename for spacing */
-    color: #333; /* Filename text color */
-    text-align: center; /* Centers the filename text */
+    margin-top: 5px;
+    color: #ccc;
 }
 
 .nav-buttons button {
