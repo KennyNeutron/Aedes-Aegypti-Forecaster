@@ -9,6 +9,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import subprocess
+import sqlite3
 
 app = Flask(__name__)
 
@@ -54,16 +55,16 @@ def run_inference(image_path, filename):
             f"{API_URL}/{MODEL_ID}?api_key={API_KEY}",
             files={"file": open(image_path, "rb")}
         )
-        
+
         if response.status_code != 200:
             print(f"❌ Error: Failed to process image - {response.text}")
             return
-        
+
         result = response.json()
         predictions = result.get("predictions", [])
         faa_count = len(predictions)
         print(f"✅ Total FAA detected: {faa_count}")
-        
+
         image = cv2.imread(image_path)
         if image is None:
             print(f"❌ Error: Unable to read input image {image_path}")
@@ -82,17 +83,21 @@ def run_inference(image_path, filename):
             cv2.putText(image, text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
         rtc_time = rtc.datetime
-        formatted_time = f"{rtc_time.tm_year}-{rtc_time.tm_mon:02d}-{rtc_time.tm_mday:02d} {rtc_time.tm_hour:02d}:{rtc_time.tm_min:02d}:{rtc_time.tm_sec:02d}"
+        formatted_time = f"{rtc_time.tm_year}-{rtc_time.tm_mon:02d}-{rtc_time.tm_mday:02d} {'AM' if rtc_time.tm_hour < 12 else 'PM'}"
         temperature = rtc.temperature
-        #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         info_text = f"{formatted_time} | Temp: {temperature} degC | FAA Count: {faa_count}"
-        cv2.putText(image, info_text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        cv2.putText(image, info_text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.25, (0, 255, 0), 2)
 
+        # Save the processed image
         cv2.imwrite(output_path, image)
         print(f"✅ Inference result saved at {output_path}")
-    
+
+        # Log the data to the database
+        log_data(formatted_time, faa_count, temperature)
+
     except Exception as e:
         print(f"❌ Inference Error: {e}")
+
 
 # Function to delay inference by 2 minutesf
 def run_inference_later(image_path, filename):
@@ -112,6 +117,19 @@ def schedule_capture():
             time.sleep(60)
 
         time.sleep(1)
+
+def log_data(datetime_str, faa_count, temperature):
+    conn = sqlite3.connect('FAA_DB.db')
+    cursor = conn.cursor()
+    sql = '''
+    INSERT INTO MosquitoData (datetime, faa_count, temperature)
+    VALUES (?, ?, ?);
+    '''
+    cursor.execute(sql, (datetime_str, faa_count, temperature))
+    conn.commit()
+    conn.close()
+    print(f"Data logged for {datetime_str}: FAA Count = {faa_count}, Temp = {temperature}")
+
 
 # Start the scheduled capture function in a separate thread
 threading.Thread(target=schedule_capture, daemon=True).start()
