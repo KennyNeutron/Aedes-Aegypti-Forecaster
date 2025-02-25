@@ -9,7 +9,6 @@
         <button onclick="prevImage()">&#9665; Previous</button>
         <button onclick="nextImage()">Next &#9655;</button>
     </div>
-    <a href="/" class="back-link">Back to Home</a>
 
     <script>
         let images = [];
@@ -35,7 +34,7 @@
                 gallery.appendChild(img);
 
                 let filename = document.createElement("p");
-                filename.textContent = "Filename: " + images[currentIndex].split('/').pop(); // To display only the filename
+                filename.textContent = "Filename: " + images[currentIndex].split('/').pop();
                 gallery.appendChild(filename);
             }
         }
