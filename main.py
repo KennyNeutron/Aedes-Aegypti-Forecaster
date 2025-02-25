@@ -86,7 +86,7 @@ def run_inference(image_path, filename):
         temperature = rtc.temperature
         #timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         info_text = f"{formatted_time} | Temp: {temperature} degC | FAA Count: {faa_count}"
-        cv2.putText(image, info_text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(image, info_text, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
         cv2.imwrite(output_path, image)
         print(f"✅ Inference result saved at {output_path}")
