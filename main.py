@@ -10,6 +10,8 @@ import numpy as np
 from datetime import datetime
 import subprocess
 import sqlite3
+import csv
+from flask import Response
 
 app = Flask(__name__)
 
@@ -185,8 +187,6 @@ def get_inference_image(filename):
     """Serve individual inference images."""
     return send_from_directory(INFERENCE_OUTPUT_FOLDER, filename)
 
-
-
 @app.route('/data-log')
 def data_log():
     """Serve the Data Log page."""
@@ -196,6 +196,31 @@ def data_log():
     data = cursor.fetchall()
     conn.close()
     return render_template('data_log.html', data=data)
+
+@app.route('/download-data')
+def download_data():
+    conn = sqlite3.connect('FAA_DB.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT datetime, faa_count, temperature FROM MosquitoData ORDER BY datetime DESC")
+    data = cursor.fetchall()
+    conn.close()
+
+    def generate():
+        # Use StringIO to handle CSV data in memory
+        import io
+        data_stream = io.StringIO()
+        csv_writer = csv.writer(data_stream)
+        csv_writer.writerow(['Date and Time', 'FAA Count', 'Temperature'])
+        for row in data:
+            csv_writer.writerow(row)
+        data_stream.seek(0)  # Move cursor to the beginning of the stream
+        return data_stream.getvalue()
+
+    return Response(
+        generate(),
+        mimetype='text/csv',
+        headers={"Content-Disposition": "attachment;filename=data_log.csv"}
+    )
 
 
 if __name__ == '__main__':

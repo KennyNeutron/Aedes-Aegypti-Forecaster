@@ -9,3 +9,8 @@ https://prod.liveshare.vsengsaas.visualstudio.com/join?1A83ACFA79EC1B65FECFA04BF
 
 //From RPi
 https://prod.liveshare.vsengsaas.visualstudio.com/join?C9A6EEB3651FA19543266F8DA61910271AD4
+
+
+
+SELECT * FROM MosquitoData ORDER BY id DESC LIMIT 10;
+SELECT datetime, faa_count, temperature FROM MosquitoData ORDER BY datetime DESC;
