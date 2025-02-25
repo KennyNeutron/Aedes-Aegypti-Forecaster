@@ -94,7 +94,7 @@ def run_inference(image_path, filename):
     except Exception as e:
         print(f"❌ Inference Error: {e}")
 
-# Function to delay inference by 2 minutes
+# Function to delay inference by 2 minutesf
 def run_inference_later(image_path, filename):
     print("⏳ Scheduling inference in 2 minutes...")
     threading.Timer(120, run_inference, args=[image_path, filename]).start()
@@ -146,6 +146,24 @@ def get_sensor_data():
     
     print(f"📡 DS3231 Time Sent to UI: {formatted_time}")  # Debugging log
     return jsonify({"time": formatted_time, "temperature": temperature})
+
+
+@app.route('/inference_output')
+def inference_output():
+    """Serve the inference output page."""
+    return render_template("inference_output.html")
+
+@app.route('/inference_images')
+def list_inference_images():
+    """API endpoint to list inference images."""
+    files = [f"/inference_output/{f}" for f in os.listdir(INFERENCE_OUTPUT_FOLDER) if f.endswith(".jpg")]
+    return jsonify({"images": files})
+
+@app.route('/inference_output/<filename>')
+def get_inference_image(filename):
+    """Serve individual inference images."""
+    return send_from_directory(INFERENCE_OUTPUT_FOLDER, filename)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
