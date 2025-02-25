@@ -32,6 +32,10 @@
         .gallery img.active {
             display: block;
         }
+        .gallery p {
+            color: #666;
+            font-size: 14px;
+        }
         .nav-buttons {
             margin-top: 10px;
         }
@@ -86,6 +90,11 @@
                 img.src = images[currentIndex];
                 img.classList.add("active");
                 gallery.appendChild(img);
+
+                // Create a paragraph element to display the filename
+                let filename = document.createElement("p");
+                filename.textContent = "Filename: " + images[currentIndex].split('/').pop(); // To display only the filename
+                gallery.appendChild(filename);
             }
         }
 
