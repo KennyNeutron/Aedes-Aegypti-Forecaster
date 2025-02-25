@@ -4,7 +4,7 @@ body {
     background-color: #121212; /* Dark background for the body */
     color: #e0e0e0; /* Light text color */
     margin: 0;
-    padding-top: 70px; /* Space for fixed header */
+    padding-top: 60px; /* Space for fixed header */
 }
 
 header {
@@ -37,6 +37,7 @@ header a:hover {
 
 .container {
     background: #222;
+    margin-top: 80px;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
@@ -92,4 +93,23 @@ h1, h2, h3, p {
 
 .nav-buttons button:hover {
     background-color: #0056b3;
+}
+
+.clock {
+    text-align: center;
+    font-size: 48px; /* Large font size for visibility */
+    padding: 10px 0; /* Adequate padding around the text */
+    width: 100%; /* Full width to span across the page */
+    position: fixed; /* Fixed positioning to keep it at the top */
+    top: 0; /* Positioned at the top */
+    left: 0; /* Aligned to the left */
+    color: white; /* High contrast text color for visibility */
+    background: transparent; /* Keeping background transparent */
+    z-index: 9999; /* High z-index to ensure it's above other content */
+}
+
+.data {
+    font-size: 18px; /* Slightly smaller than the clock for visual hierarchy */
+    text-align: center; /* Ensures data is centered */
+    margin: 5px 0; /* Provides spacing around each data element */
 }
