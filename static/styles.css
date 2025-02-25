@@ -42,11 +42,29 @@ h1 {
     color: #333;
 }
 
+.gallery {
+    width: 800px;  /* Fixed width */
+    height: 600px; /* Fixed height plus extra space for the filename */
+    overflow: hidden; /* Prevents overflow */
+    display: flex;
+    flex-direction: column; /* Stacks children vertically */
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto; /* Centers the gallery */
+    background-color: #eee; /* Optional: background color for the container */
+    padding-bottom: 20px; /* Space for the filename */
+}
+
 .gallery img {
-    width: 500px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
+    max-width: 100%;
+    max-height: 90%; /* Reduced max height to leave space for the filename */
+    object-fit: contain; /* Ensures the image is scaled correctly */
+}
+
+.gallery p {
+    margin-top: 5px; /* Margin above the filename for spacing */
+    color: #333; /* Filename text color */
+    text-align: center; /* Centers the filename text */
 }
 
 .nav-buttons button {
