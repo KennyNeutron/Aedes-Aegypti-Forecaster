@@ -7,14 +7,14 @@
     <table>
         <tr>
             <th>Date and Time</th>
-            <th>FAA Count</th>
             <th>Temperature</th>
+            <th>FAA Count</th>
         </tr>
         {% for row in data %}
         <tr>
             <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
             <td>{{ row[2] }}</td>
+            <td>{{ row[1] }}</td>
         </tr>
         {% endfor %}
     </table>

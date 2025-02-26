@@ -201,7 +201,7 @@ def data_log():
 def download_data():
     conn = sqlite3.connect('FAA_DB.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT datetime, faa_count, temperature FROM MosquitoData ORDER BY datetime DESC")
+    cursor.execute("SELECT datetime, temperature, faa_count FROM MosquitoData ORDER BY datetime DESC")
     data = cursor.fetchall()
     conn.close()
 
@@ -210,7 +210,7 @@ def download_data():
         import io
         data_stream = io.StringIO()
         csv_writer = csv.writer(data_stream)
-        csv_writer.writerow(['Date and Time', 'FAA Count', 'Temperature'])
+        csv_writer.writerow(['Date and Time', 'Temperature', 'FAA Count'])
         for row in data:
             csv_writer.writerow(row)
         data_stream.seek(0)  # Move cursor to the beginning of the stream
@@ -219,7 +219,7 @@ def download_data():
     return Response(
         generate(),
         mimetype='text/csv',
-        headers={"Content-Disposition": "attachment;filename=data_log.csv"}
+        headers={"Content-Disposition": "attachment;filename=FAA_DataLog.csv"}
     )
 
 
