@@ -222,6 +222,14 @@ def download_data():
         headers={"Content-Disposition": "attachment;filename=FAA_DataLog.csv"}
     )
 
+@app.route('/clear-data', methods=['POST'])
+def clear_data():
+    conn = sqlite3.connect('FAA_DB.db')
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM MosquitoData")
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'Database cleared'})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -7,7 +7,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-
+        <script src="/static/scripts.js"></script>
     </head>
     <body>
         <header>
@@ -33,28 +33,6 @@
         </div>
         
         <script>
-            function updateData() {
-                fetch("/data")
-                    .then(response => response.json())
-                    .then(data => {
-                        let splitDateTime = data.time.split(" ");
-                        document.getElementById("time").textContent = splitDateTime[1];
-                        document.getElementById("date").textContent = splitDateTime[0];
-                        document.getElementById("temperature").textContent = data.temperature.toFixed(2);
-
-                        let currentHour = parseInt(splitDateTime[1].split(":")[0]);
-                        let nextCapture;
-                        if (currentHour >= 20) {
-                            nextCapture = "07:00 AM (Tomorrow)";
-                        } else if (currentHour >= 7) {
-                            nextCapture = "08:00 PM";
-                        } else {
-                            nextCapture = "07:00 AM";
-                        }
-                        document.getElementById("next-capture").textContent = nextCapture;
-                    })
-                    .catch(error => console.error("Error fetching data:", error));
-            }
             setInterval(updateData, 2000);
             updateData();
         </script>
