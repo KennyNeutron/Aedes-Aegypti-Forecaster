@@ -1,4 +1,4 @@
-// Object to keep track of state for each gallery
+// Maintains the state of image galleries.
 const galleries = {
     'gallery': {
         images: [],
@@ -10,7 +10,7 @@ const galleries = {
     }
 };
 
-// Function to update the data on the home page
+// Updates the display data on the home page.
 function updateData() {
     fetch("/data")
         .then(response => response.json())
@@ -21,42 +21,34 @@ function updateData() {
             document.getElementById("temperature").textContent = data.temperature.toFixed(2);
 
             let currentHour = parseInt(splitDateTime[1].split(":")[0]);
-            let nextCapture;
-            if (currentHour >= 20) {
-                nextCapture = "07:00 AM (Tomorrow)";
-            } else if (currentHour >= 7) {
-                nextCapture = "08:00 PM";
-            } else {
-                nextCapture = "07:00 AM";
-            }
+            let nextCapture = currentHour >= 20 ? "07:00 AM (Tomorrow)" :
+                              currentHour >= 7 ? "08:00 PM" : "07:00 AM";
             document.getElementById("next-capture").textContent = nextCapture;
         })
         .catch(error => console.error("Error fetching data:", error));
 }
 
-// Function to load images from server
+// Loads images from the server for a specified gallery.
 function loadImages(apiEndpoint, galleryId) {
     fetch(apiEndpoint)
         .then(response => response.json())
         .then(data => {
             if (data.images && data.images.length > 0) {
                 galleries[galleryId].images = data.images;
-                galleries[galleryId].currentIndex = 0;  // Reset index whenever images are loaded
+                galleries[galleryId].currentIndex = 0;  // Resets index when images are loaded
                 displayImage(galleryId);
             } else {
                 console.error("No images found at:", apiEndpoint);
             }
         })
-        .catch(error => {
-            console.error("Error fetching images from", apiEndpoint, ":", error);
-        });
+        .catch(error => console.error("Error fetching images from", apiEndpoint, ":", error));
 }
 
-// Function to display the current image in the gallery
+// Displays the current image in a specified gallery.
 function displayImage(galleryId) {
     const gallery = document.getElementById(galleryId);
     const galleryInfo = galleries[galleryId];
-    gallery.innerHTML = "";  // Clear current content
+    gallery.innerHTML = "";  // Clears the current content
     if (galleryInfo.images.length > 0) {
         let img = document.createElement("img");
         img.src = galleryInfo.images[galleryInfo.currentIndex];
@@ -71,14 +63,14 @@ function displayImage(galleryId) {
     }
 }
 
-// Function to change image in the gallery
+// Changes the displayed image in a specified gallery based on direction.
 function changeImage(direction, galleryId) {
     const galleryInfo = galleries[galleryId];
-    const len = galleryInfo.images.length;
-    galleryInfo.currentIndex = (galleryInfo.currentIndex + direction + len) % len;
+    galleryInfo.currentIndex = (galleryInfo.currentIndex + direction + galleryInfo.images.length) % galleryInfo.images.length;
     displayImage(galleryId);
 }
 
+// Confirms and clears all data in the database.
 function clearDatabase() {
     if (confirm('Are you sure you want to clear all data?')) {
         fetch('/clear-data', { method: 'POST' })
@@ -86,7 +78,7 @@ function clearDatabase() {
             .then(data => {
                 if (data.status === 'Database cleared') {
                     alert('Database has been cleared.');
-                    location.reload();  // Reload the page to update the table if needed
+                    location.reload();  // Reloads the page to reflect data changes
                 } else {
                     alert('Failed to clear the database.');
                 }
@@ -98,7 +90,7 @@ function clearDatabase() {
     }
 }
 
-//download data log as CSV
+// Initiates the download of the data log as a CSV file.
 function downloadCSV() {
-    window.location.href = '/download-data';
+    window.location.href = '/download-data'; // Navigates to download data endpoint
 }

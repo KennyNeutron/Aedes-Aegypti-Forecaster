@@ -1,33 +1,30 @@
-/* styles.css */
 @font-face {
     font-family: 'Bebas';
     src: url('fonts/BebasNeue-Regular.ttf') format('truetype');
 }
 
-
 body {
     margin: 0;
     padding: 0;
-    padding-top: 100px; /* Add padding to top to push content below fixed header */
-    background-color: #121212; /* Ensure the body has a uniform background */
+    padding-top: 100px;
+    background-color: #121212;
     font-family: Arial, sans-serif;
     color: #e0e0e0;
-    height: 100%; /* Full height to cover entire viewport area */
+    height: 100%;
     overflow: auto;
 }
-
 
 header {
     background-color: #333;
     padding: 5px 10px;
     color: white;
     display: flex;
-    justify-content: flex-end; /* Aligns children to the end (right side) */
+    justify-content: flex-end;
     align-items: center;
     width: 100%;
     position: fixed;
     top: 0;
-    z-index: 1050; /* Ensure it stays on top */
+    z-index: 1050;
 }
 
 header a {
@@ -36,39 +33,37 @@ header a {
     text-decoration: none;
     padding: 10px 15px;
     margin: 0 5px;
-    background-color: transparent; /* Make background transparent by default */
-    display: inline-block;
+    background-color: transparent;
 }
 
 header a:hover {
-    background-color: #555; /* Visible background color on hover */
+    background-color: #555;
 }
 
-
 .container {
-    background-color: #222; /* Clear and explicit background color */
+    background-color: #222;
     padding: 10px;
     margin: auto;
     margin-top: 3px;
     border-radius: 10px;
-    width: 80%; /* Adjust width as needed */
+    width: 80%;
     max-width: 800px;
     text-align: center;
-    position: relative; /* Ensure standard positioning */
-    z-index: 100; /* Lower than fixed elements */
+    position: relative;
+    z-index: 100;
 }
 
 .thiscontain {
-    background-color: #222; /* Clear and explicit background color */
+    background-color: #222;
     padding: 10px;
     margin: auto;
     margin-top: 120px;
     border-radius: 10px;
-    width: 80%; /* Adjust width as needed */
+    width: 80%;
     max-width: 800px;
     text-align: center;
-    position: relative; /* Ensure standard positioning */
-    z-index: 100; /* Lower than fixed elements */
+    position: relative;
+    z-index: 100;
 }
 
 h1, h2, h3, p {
@@ -76,9 +71,9 @@ h1, h2, h3, p {
 }
 
 .gallery {
-    width: 100%; /* Responsive width */
-    max-width: 800px; /* Maximum width */
-    height: auto; /* Adjust height based on content */
+    width: 100%;
+    max-width: 800px;
+    height: auto;
     overflow: auto;
     display: flex;
     flex-direction: column;
@@ -91,7 +86,7 @@ h1, h2, h3, p {
 
 .gallery img {
     max-width: 100%;
-    height: auto; /* Adjust height automatically */
+    height: auto;
     object-fit: contain;
 }
 
@@ -116,12 +111,12 @@ h1, h2, h3, p {
 }
 
 .clock {
-    font-family: 'Bebas Neue', monospace; /* Now using Google Font */
-    font-size: 150px; /* Large size for better visibility */
+    font-family: 'Bebas Neue', monospace;
+    font-size: 150px;
     text-align: center;
     color: red;
     position: fixed;
-    top: 50px; /* Adjust if necessary */
+    top: 50px;
     left: 0;
     right: 0;
     background: transparent;
@@ -132,68 +127,63 @@ h1, h2, h3, p {
     align-items: center;
 }
 
-
-
 .data {
-    font-size: 18px; /* Slightly smaller than the clock for visual hierarchy */
-    text-align: center; /* Ensures data is centered */
-    margin: 5px 0; /* Provides spacing around each data element */
+    font-size: 18px;
+    text-align: center;
+    margin: 5px 0;
 }
 
 .full-height {
-    padding: 10px;  
-    margin: 0 auto;  
-    display: flex;  
-    flex-direction: column;  
-    justify-content: center;  
-    align-items: center;  
-    height: auto; 
+    padding: 10px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: auto;
 }
 
 nav {
     background-color: #333;
-    overflow: hidden;  /* Contains the floated elements */
-    width: 100%;       /* Ensures the nav bar extends full width */
+    overflow: hidden;
+    width: 100%;
 }
 
-.NavBar{
+.NavBar {
     background-color: #333;
-    overflow: hidden;  /* Contains the floated elements */
-    width: 100%;       /* Ensures the nav bar extends full width */
+    overflow: hidden;
+    width: 100%;
     height: 40px;
 }
-
 
 nav ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    display: flex;     /* Using flexbox instead of float for better alignment */
-    align-items: center; /* Centers items vertically */
+    display: flex;
+    align-items: center;
 }
 
 nav ul li {
-    margin-right: 10px; /* Adds space between items */
+    margin-right: 10px;
 }
 
 nav ul li a {
-    display: flex;      /* Ensures flex alignment of the image and text (if any) */
+    display: flex;
     align-items: center;
     color: white;
-    padding: 10px 16px; /* Adjust padding as needed */
+    padding: 10px 16px;
     text-decoration: none;
 }
 
 nav ul li a img {
-    height: 40px;  /* Adjust based on your needs */
-    width: auto;   /* Maintain aspect ratio */
+    height: 40px;
+    width: auto;
 }
 
 nav ul li a:hover {
     background-color: #555;
 }
-
-
 
 table {
     width: 100%;
@@ -210,42 +200,41 @@ th, td {
     text-align: left;
 }
 
-.container_datalog{
+.container_datalog {
     width: 80%;
     margin: 20px auto;
     padding: 10px;
     background-color: #222;
     border-radius: 8px;
     box-shadow: 0 0 10px #000;
- 
+    text-align: center;
+}
 
 .button_download {
     margin-bottom: 20px;
     padding: 10px 20px;
-    background-color: blue; /* Original blue color */
+    background-color: blue;
     color: white;
     text-decoration: none;
     border-radius: 5px;
-    transition: background-color 0.3s; /* Smooth transition for background color change */
+    transition: background-color 0.3s;
 }
 
 .button_download:hover {
-    background-color: #0000aa; /* Darker shade of blue */
+    background-color: #0000aa;
 }
 
 .button_cleardatabase {
     margin-bottom: 20px;
     padding: 10px 20px;
-    background-color: red; /* Original red color */
+    background-color: red;
     color: white;
     text-decoration: none;
     border-radius: 5px;
-    transition: background-color 0.3s; /* Smooth transition for background color change */
+    transition: background-color 0.3s;
 }
 
 .button_cleardatabase:hover {
-    background-color: #aa0000; /* Darker shade of red */
-}
-   text-align: center;
+    background-color: #aa0000;
 }   text-align: center;
 }

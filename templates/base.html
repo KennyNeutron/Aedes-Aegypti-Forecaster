@@ -7,27 +7,23 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-
         <title>{% block title %}Aedes aegypti Forecaster{% endblock %}</title>
     </head>
 <body>
-
-<header>
-    <nav class="NavBar">
-        <ul class="NavBar">
-            <li><a href="/" title="Home"><img src="/static/images/Home.png" alt="Home"></a></li>
-            <li><a href="/gallery" title="Gallery"><img src="/static/images/Gallery.png" alt="Gallery"></a></li>
-            <li><a href="/inference" title="Inference"><img src="/static/images/Inference.png" alt="Inference"></a></li>
-            <li><a href="/data-log" title="Data Log"><img src="/static/images/DataLog.png" alt="Data Log"></a></li>
-        </ul>
-    </nav>
-</header>
-
-
-<div class="full-height">
-    <div class="container">
-        {% block content %}{% endblock %}
+    <header>
+        <nav class="NavBar">
+            <ul class="NavBar">
+                <li><a href="/" title="Home"><img src="/static/images/Home.png" alt="Home"></a></li>
+                <li><a href="/gallery" title="Gallery"><img src="/static/images/Gallery.png" alt="Gallery"></a></li>
+                <li><a href="/inference" title="Inference"><img src="/static/images/Inference.png" alt="Inference"></a></li>
+                <li><a href="/data-log" title="Data Log"><img src="/static/images/DataLog.png" alt="Data Log"></a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="full-height">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
     </div>
-</div>
 </body>
 </html>
