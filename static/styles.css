@@ -150,29 +150,49 @@ h1, h2, h3, p {
     height: auto; 
 }
 
+nav {
+    background-color: #333;
+    overflow: hidden;  /* Contains the floated elements */
+    width: 100%;       /* Ensures the nav bar extends full width */
+}
+
+.NavBar{
+    background-color: #333;
+    overflow: hidden;  /* Contains the floated elements */
+    width: 100%;       /* Ensures the nav bar extends full width */
+    height: 40px;
+}
+
+
 nav ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
-    overflow: auto;
-    background-color: #333;
+    display: flex;     /* Using flexbox instead of float for better alignment */
+    align-items: center; /* Centers items vertically */
 }
 
 nav ul li {
-    float: left;
+    margin-right: 10px; /* Adds space between items */
 }
 
 nav ul li a {
-    display: block;
+    display: flex;      /* Ensures flex alignment of the image and text (if any) */
+    align-items: center;
     color: white;
-    text-align: center;
-    padding: 14px 16px;
+    padding: 10px 16px; /* Adjust padding as needed */
     text-decoration: none;
+}
+
+nav ul li a img {
+    height: 40px;  /* Adjust based on your needs */
+    width: auto;   /* Maintain aspect ratio */
 }
 
 nav ul li a:hover {
     background-color: #555;
 }
+
 
 
 table {
@@ -227,4 +247,5 @@ th, td {
     background-color: #aa0000; /* Darker shade of red */
 }
    text-align: center;
+}   text-align: center;
 }

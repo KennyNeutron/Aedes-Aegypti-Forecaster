@@ -1,40 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Aa Forecaster - Home</title>
-        <link rel="stylesheet" href="/static/styles.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-        <script src="/static/scripts.js"></script>
-    </head>
-    <body>
-        <header>
-            <nav>
-                <ul>
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/gallery">Gallery</a></li>
-                    <li><a href="/inference">Inference</a></li>
-                    <li><a href="/data-log">DataLog</a></li>
-                </ul>
-            </nav>
-        </header>
+<head>
+    <meta charset="UTF-8">
+    <title>Aa Forecaster - Home</title>
+    <link rel="icon" type="image/png" href="/static/images/Logo.png">
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <script src="/static/scripts.js"></script>
+</head>
+<body>
+    <header>
+        <nav class="NavBar">
+            <ul class="NavBar">
+                <li><a href="/" title="Home"><img src="/static/images/Home.png" alt="Home"></a></li>
+                <li><a href="/gallery" title="Gallery"><img src="/static/images/Gallery.png" alt="Gallery"></a></li>
+                <li><a href="/inference" title="Inference"><img src="/static/images/Inference.png" alt="Inference"></a></li>
+                <li><a href="/data-log" title="Data Log"><img src="/static/images/DataLog.png" alt="Data Log"></a></li>
+            </ul>
+        </nav>
+    </header>
 
-        <div class="clock">
-            <span id="time">Loading...</span>
-        </div>
+    <div class="clock">
+        <span id="time">Loading...</span>
+    </div>
 
-        <div class="thiscontain">
-            <h1>Aedes aegypti Forecaster</h1>
-            <p class="data">Date: <span id="date">Loading...</span></p>
-            <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
-            <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
-        </div>
-        
-        <script>
-            setInterval(updateData, 2000);
-            updateData();
-        </script>
-    </body>
+    <div class="thiscontain">
+        <h1>Aedes aegypti Forecaster</h1>
+        <p class="data">Date: <span id="date">Loading...</span></p>
+        <p class="data">Temperature: <span id="temperature">Loading...</span> °C</p>
+        <p class="capture-info">Next Capture: <span id="next-capture">Loading...</span></p>
+    </div>
+    
+    <script>
+        setInterval(updateData, 2000);
+        updateData();
+    </script>
+</body>
 </html>

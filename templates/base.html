@@ -11,12 +11,18 @@
         <title>{% block title %}Aedes aegypti Forecaster{% endblock %}</title>
     </head>
 <body>
+
 <header>
-    <a href="/">Home</a>
-    <a href="/gallery">Gallery</a>
-    <a href="/inference_output">Inference</a>
-    <a href="/data-log">Datalog</a>
+    <nav class="NavBar">
+        <ul class="NavBar">
+            <li><a href="/" title="Home"><img src="/static/images/Home.png" alt="Home"></a></li>
+            <li><a href="/gallery" title="Gallery"><img src="/static/images/Gallery.png" alt="Gallery"></a></li>
+            <li><a href="/inference" title="Inference"><img src="/static/images/Inference.png" alt="Inference"></a></li>
+            <li><a href="/data-log" title="Data Log"><img src="/static/images/DataLog.png" alt="Data Log"></a></li>
+        </ul>
+    </nav>
 </header>
+
 
 <div class="full-height">
     <div class="container">

@@ -171,10 +171,10 @@ def get_sensor_data():
     return jsonify({"time": formatted_time, "temperature": temperature})
 
 
-@app.route('/inference_output')
+@app.route('/inference')
 def inference_output():
     """Serve the inference output page."""
-    return render_template("inference_output.html")
+    return render_template("inference.html")
 
 @app.route('/inference_images')
 def list_inference_images():
