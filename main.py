@@ -12,7 +12,6 @@ import subprocess
 import sqlite3
 import csv
 
-
 app = Flask(__name__)
 
 # Initialize the DS3231 real-time clock
