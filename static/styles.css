@@ -197,5 +197,34 @@ th, td {
     background-color: #222;
     border-radius: 8px;
     box-shadow: 0 0 10px #000;
-    text-align: center;
+ 
+
+.button_download {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: blue; /* Original blue color */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s; /* Smooth transition for background color change */
+}
+
+.button_download:hover {
+    background-color: #0000aa; /* Darker shade of blue */
+}
+
+.button_cleardatabase {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: red; /* Original red color */
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s; /* Smooth transition for background color change */
+}
+
+.button_cleardatabase:hover {
+    background-color: #aa0000; /* Darker shade of red */
+}
+   text-align: center;
 }

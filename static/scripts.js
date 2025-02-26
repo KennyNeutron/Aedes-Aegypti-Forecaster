@@ -78,3 +78,27 @@ function changeImage(direction, galleryId) {
     galleryInfo.currentIndex = (galleryInfo.currentIndex + direction + len) % len;
     displayImage(galleryId);
 }
+
+function clearDatabase() {
+    if (confirm('Are you sure you want to clear all data?')) {
+        fetch('/clear-data', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'Database cleared') {
+                    alert('Database has been cleared.');
+                    location.reload();  // Reload the page to update the table if needed
+                } else {
+                    alert('Failed to clear the database.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error clearing database.');
+            });
+    }
+}
+
+//download data log as CSV
+function downloadCSV() {
+    window.location.href = '/download-data';
+}

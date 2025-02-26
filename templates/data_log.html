@@ -3,7 +3,8 @@
 {% block content %}
 <div class="container_datalog">
     <h1>Mosquito Data Log</h1>
-    <a href="/download-data" class="button" style="margin-bottom: 20px; padding: 10px 20px; background-color: #007BFF; color: white; text-decoration: none; border-radius: 5px;">Download CSV</a>
+    <button onclick="clearDatabase()" class="button_cleardatabase">CLEAR DATA</button>
+    <button onclick="downloadCSV()" class="button_download">DOWNLOAD DATA</button> <!-- Updated this line -->
     <table>
         <tr>
             <th>Date and Time</th>
@@ -19,4 +20,5 @@
         {% endfor %}
     </table>
 </div>
+<script src="/static/scripts.js"></script>
 {% endblock %}
