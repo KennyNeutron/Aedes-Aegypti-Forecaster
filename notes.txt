@@ -14,3 +14,9 @@ https://prod.liveshare.vsengsaas.visualstudio.com/join?D24209842F71053EF3FA1E28B
 
 SELECT * FROM MosquitoData ORDER BY id DESC LIMIT 10;
 SELECT datetime, faa_count, temperature FROM MosquitoData ORDER BY datetime DESC;
+
+
+sqlite> SELECT datetime, temperature, faa_count  FROM MosquitoData ORDER BY datetime DESC;
+2025-02-23 AM|11.0|30
+
+https://filebin.net/rqtdaa8falsk2tas
