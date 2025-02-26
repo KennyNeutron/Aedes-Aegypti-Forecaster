@@ -11,7 +11,7 @@ from datetime import datetime
 import subprocess
 import sqlite3
 import csv
-import os
+
 
 app = Flask(__name__)
 
@@ -77,8 +77,12 @@ def run_inference(image_path, filename):
             x, y, width, height = (
                 int(pred["x"]), int(pred["y"]), int(pred["width"]), int(pred["height"])
             )
-            cv2.rectangle(image, (x - width // 2, y - height // 2), (x + width // 2, y + height // 2), (0, 0, 255), 2)
-            cv2.putText(image, f"FAA: {pred['confidence']:.2f}", (x - width // 2, y - height // 2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            cv2.rectangle(image, (x - width // 2, y - height // 2), (x + width // 2, y + height // 2), (255, 0, 0), 2)
+            cv2.putText(image, f"FAA: {pred['confidence']:.2f}", (x - width // 2, y - height // 2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        timestamp = f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d} {'AM' if rtc.datetime.tm_hour < 12 else 'PM'}"
+        info_text = f"{timestamp} | FAA Count: {faa_count} | Temp: {rtc.temperature:.1f} degC"
+        cv2.putText(image, info_text, (10, image.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
         cv2.imwrite(output_path, image)
         print(f"✅ Inference result saved at {output_path}")
@@ -89,8 +93,9 @@ def run_inference(image_path, filename):
 
 def run_inference_later(image_path, filename):
     """Delays the inference process to allow for any post-capture processing."""
-    threading.Timer(120, run_inference, args=[image_path, filename]).start()
-    print("⏳ Scheduling inference in 2 minutes...")
+    threading.Timer(30, run_inference, args=[image_path, filename]).start()
+    print("⏳ Scheduling inference in 30 seconds...")
+
 
 def schedule_capture():
     """Schedules image capture at 7 AM and 8 PM daily."""
