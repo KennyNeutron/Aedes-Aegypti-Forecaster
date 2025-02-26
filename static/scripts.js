@@ -72,23 +72,29 @@ function changeImage(direction, galleryId) {
 
 // Confirms and clears all data in the database.
 function clearDatabase() {
-    if (confirm('Are you sure you want to clear all data?')) {
-        fetch('/clear-data', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'Database cleared') {
-                    alert('Database has been cleared.');
-                    location.reload();  // Reloads the page to reflect data changes
-                } else {
-                    alert('Failed to clear the database.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error clearing database.');
-            });
+    let password = prompt("Enter admin password to clear the database:");
+    if (password) {
+        fetch('/clear-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'Database cleared') {
+                alert('Database has been cleared.');
+                location.reload();
+            } else {
+                alert(data.status); // Displays error message
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error clearing database.');
+        });
     }
 }
+
 
 // Initiates the download of the data log as a CSV file.
 function downloadCSV() {

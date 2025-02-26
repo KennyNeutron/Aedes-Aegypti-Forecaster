@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, send_from_directory
+from flask import Flask, jsonify, render_template, send_from_directory, Response, request
 import board
 import adafruit_ds3231
 import time
@@ -11,7 +11,7 @@ from datetime import datetime
 import subprocess
 import sqlite3
 import csv
-from flask import Response
+import os
 
 app = Flask(__name__)
 
@@ -32,6 +32,9 @@ MODEL_ID = "mosquito_faa/1"
 
 # Database file path
 DATABASE_PATH = 'FAA_DB.db'
+
+# Set a password for clearing the database (Change this in the environment settings)
+CLEAR_DB_PASSWORD = os.getenv('CLEAR_DB_PASSWORD', 'FAA_Forecaster2025')
 
 def capture_image():
     """Captures an image using the Raspberry Pi Camera Module 2 at scheduled times."""
@@ -172,11 +175,18 @@ def download_data():
 
 @app.route('/clear-data', methods=['POST'])
 def clear_data():
-    conn = sqlite3.connect('FAA_DB.db')
+    data = request.json
+    password = data.get('password', '')
+
+    if password != CLEAR_DB_PASSWORD:
+        return jsonify({'status': 'Incorrect password'}), 403
+
+    conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     cursor.execute("DELETE FROM MosquitoData")
     conn.commit()
     conn.close()
+
     return jsonify({'status': 'Database cleared'})
 
 if __name__ == '__main__':
