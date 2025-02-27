@@ -210,6 +210,20 @@ th, td {
     text-align: center;
 }
 
+.button_default {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #33cc33;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.button_default:hover {
+    background-color: #009933;
+}
+
 .button_download {
     margin-bottom: 20px;
     padding: 10px 20px;
@@ -236,5 +250,4 @@ th, td {
 
 .button_cleardatabase:hover {
     background-color: #aa0000;
-}   text-align: center;
 }

@@ -100,3 +100,31 @@ function clearDatabase() {
 function downloadCSV() {
     window.location.href = '/download-data'; // Navigates to download data endpoint
 }
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (document.getElementById("RunTest")) {
+        fetch('/RunTest_Images')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Received image data:", data);
+                const gallery = document.getElementById('RunTest');
+                gallery.innerHTML = "";
+
+                if (data.images.length > 0) {
+                    let img = document.createElement("img");
+                    img.src = data.images[0];
+                    img.classList.add("active");
+                    gallery.appendChild(img);
+
+                    let filename = document.createElement("p");
+                    filename.textContent = "Filename: " + data.images[0].split('/').pop();
+                    gallery.appendChild(filename);
+                } else {
+                    gallery.textContent = "No image available";
+                }
+            })
+            .catch(error => console.error("Error fetching RunTest image:", error));
+    }
+});
+

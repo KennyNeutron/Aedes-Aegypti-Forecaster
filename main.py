@@ -21,6 +21,7 @@ rtc = adafruit_ds3231.DS3231(i2c)
 # Directories for storing images
 IMAGE_FOLDER = "captured_images"
 INFERENCE_OUTPUT_FOLDER = "inference_output"
+TEST_INFERENCE_FOLDER = "system_test"
 os.makedirs(IMAGE_FOLDER, exist_ok=True)
 os.makedirs(INFERENCE_OUTPUT_FOLDER, exist_ok=True)
 
@@ -192,6 +193,34 @@ def clear_data():
     conn.close()
 
     return jsonify({'status': 'Database cleared'})
+
+
+@app.route('/RunTest')
+def RunTest():
+    return render_template("RunTest.html")
+
+@app.route('/RunTest_Images')
+def list_RunTest_Images():
+    """Lists the latest image from the system_test folder"""
+    try:
+        files = [f for f in os.listdir(TEST_INFERENCE_FOLDER) if f.endswith(".jpg")]
+        print("Files in system_test:", files)  # Debugging print
+
+        if not files:
+            return jsonify({"images": []})  # Return empty if no images exist
+
+        latest_image = sorted(files, reverse=True)[0]  # Get the latest image
+        image_url = f"/system_test/{latest_image}"  # Adjusted URL format
+        print("Serving image:", image_url)  # Debugging print
+        return jsonify({"images": [image_url]})
+    except Exception as e:
+        print("Error accessing system_test folder:", str(e))  # Debugging print
+        return jsonify({"error": str(e)})
+
+@app.route('/system_test/<filename>')
+def get_RunTest_Images(filename):
+    """Serves images from the system_test folder"""
+    return send_from_directory(TEST_INFERENCE_FOLDER, filename)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
