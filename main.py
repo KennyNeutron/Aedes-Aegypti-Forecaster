@@ -36,7 +36,7 @@ DATABASE_PATH = 'FAA_DB.db'
 # Set a password for clearing the database (Change this in the environment settings)
 CLEAR_DB_PASSWORD = os.getenv('CLEAR_DB_PASSWORD', 'FAA_Forecaster2025')
 
-disable_schedule = False  # Flag to enable/disable scheduled capture
+scheduled_capture_enable = True  # Flag to enable/disable scheduled capture
 
 def capture_image():
     """Captures an image using the Raspberry Pi Camera Module 2 at scheduled times."""
@@ -100,42 +100,41 @@ def run_inference_later(image_path, filename):
 
 def schedule_capture():
     """Schedules image capture at 7 AM and 8 PM daily, but can be disabled."""
-    global disable_schedule
     while True:
-        print(f"⏰ Current Time: {rtc.datetime.tm_hour}:{rtc.datetime.tm_min}, Schedule Disabled: {disable_schedule}")  # Debugging
-        if not disable_schedule:  # Only run if NOT disabled
-            #print("schedule_capture is running...")  # Debugging
-            now = rtc.datetime
-            if now.tm_hour == 7 and now.tm_min == 0 or now.tm_hour == 20 and now.tm_min == 0:
+        global scheduled_capture_enable
+        print(f"⏰ Current Time: {rtc.datetime.tm_hour}:{rtc.datetime.tm_min}, Scheduled Capture Enable: {scheduled_capture_enable}")  # Debugging
+        now = rtc.datetime
+        if now.tm_hour == 7 and now.tm_min == 0 or now.tm_hour == 20 and now.tm_min == 0:
+            if scheduled_capture_enable:
                 print("📸 Triggering scheduled capture...")
                 capture_image()
                 funct_disable_scheduled_capture()
-                time.sleep(60)  # Prevents repeated captures
-            else:
-                funct_enable_schedule_capture()
+                time.sleep
+        else:
+            funct_enable_schedule_capture()
         time.sleep(6)
 
 def funct_disable_scheduled_capture():
-    global disable_schedule
-    disable_schedule = True
+    global scheduled_capture_enable
+    scheduled_capture_enable = False
 
 def funct_enable_schedule_capture():
-    global disable_schedule
-    disable_schedule = False
+    global scheduled_capture_enable
+    scheduled_capture_enable = True
 
 @app.route('/disable_schedule', methods=['POST'])
 def disable_schedule_capture():
     """Disables the scheduled capture temporarily."""
-    global disable_schedule
-    disable_schedule = True
+    global scheduled_capture_enable
+    scheduled_capture_enable = False
     print("🚫 Scheduled capture DISABLED!")
     return jsonify({"status": "Disabled"})
 
 @app.route('/enable_schedule', methods=['POST'])
 def enable_schedule_capture():
     """Re-enables the scheduled capture."""
-    global disable_schedule
-    disable_schedule = False
+    global scheduled_capture_enable
+    scheduled_capture_enable = True
     print("✅ Scheduled capture ENABLED!")
     return jsonify({"status": "Enabled"})
 
@@ -258,9 +257,9 @@ def get_RunTest_Images(filename):
 
 @app.route('/RunTest_Capture', methods=['POST'])
 def RunTest_Capture():
-    """Deletes old images, captures a new one, and saves it to system_test/"""
+    """Deletes old images, captures a new one, runs inference, and saves only the processed image."""
     try:
-        # Step 1: Delete the old image
+        # Step 1: Delete old images in system_test
         files = [f for f in os.listdir(TEST_INFERENCE_FOLDER) if f.endswith(".jpg")]
         for file in files:
             os.remove(os.path.join(TEST_INFERENCE_FOLDER, file))
@@ -275,14 +274,53 @@ def RunTest_Capture():
         subprocess.run(["libcamera-still", "-o", image_path, "--width", "1920", "--height", "1080", "--timeout", "1"], check=True)
         print("✅ Image captured and saved.")
 
-        return jsonify({"status": "Captured", "image": f"/system_test/{filename}"})
+        # Step 3: Run inference on the captured image
+        output_filename = f"inferred_{filename}"
+        output_path = os.path.join(TEST_INFERENCE_FOLDER, output_filename)
+
+        print(f"🚀 Running inference on {image_path}...")
+        response = requests.post(
+            f"{API_URL}/{MODEL_ID}?api_key={API_KEY}",
+            files={"file": open(image_path, "rb")}
+        )
+
+        if response.status_code != 200:
+            print(f"❌ Error: Failed to process image - {response.text}")
+            return jsonify({"status": "Error", "error": "Inference failed"})
+
+        result = response.json()
+        predictions = result.get("predictions", [])
+        faa_count = len(predictions)
+        print(f"✅ Total FAA detected: {faa_count}")
+
+        image = cv2.imread(image_path)
+        for pred in predictions:
+            x, y, width, height = (
+                int(pred["x"]), int(pred["y"]), int(pred["width"]), int(pred["height"])
+            )
+            cv2.rectangle(image, (x - width // 2, y - height // 2), (x + width // 2, y + height // 2), (255, 0, 0), 2)
+            cv2.putText(image, f"FAA: {pred['confidence']:.2f}", (x - width // 2, y - height // 2 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+        timestamp = f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d} {'AM' if rtc.datetime.tm_hour < 12 else 'PM'}"
+        info_text = f"{timestamp} | FAA Count: {faa_count} | Temp: {rtc.temperature:.1f} degC"
+        cv2.putText(image, info_text, (10, image.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+
+        # Save the inferred image, replacing the original
+        cv2.imwrite(output_path, image)
+        print(f"✅ Inference result saved at {output_path}")
+
+        # Remove the original image (only keeping the inferred one)
+        os.remove(image_path)
+
+        return jsonify({"status": "Captured & Inferred", "image": f"/system_test/{output_filename}"})
 
     except Exception as e:
-        print(f"❌ Capture Error: {e}")
+        print(f"❌ Capture or Inference Error: {e}")
         return jsonify({"status": "Error", "error": str(e)})
+
 
 if __name__ == '__main__':
     threading.Thread(target=schedule_capture, daemon=True).start()
     print("🚀 Starting Flask server...")
-    print(f"schedule_capture status: {disable_schedule}")
+    print(f"schedule_capture status: {scheduled_capture_enable}")
     app.run(host='0.0.0.0', port=5000, debug=True)

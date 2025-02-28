@@ -130,28 +130,25 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function performInference() {
     const button = document.querySelector(".button_default");
-    button.disabled = true;  // Disable button
-    button.textContent = "Capturing...";  // Show capturing status
+    button.disabled = true;
+    button.textContent = "Capturing & Processing...";  // Update UI to show processing state
 
-    showNotification("📸 Capturing image...");
+    showNotification("📸 Capturing and running inference...");
 
-    // Step 1: Disable scheduled capture before inference
     fetch('/disable_schedule', { method: 'POST' })
-        .then(() => {
-            return fetch('/RunTest_Capture', { method: 'POST' })  // Step 2: Perform inference
-        })
+        .then(() => fetch('/RunTest_Capture', { method: 'POST' }))  // Run capture and inference
         .then(response => response.json())
         .then(data => {
-            if (data.status === "Captured") {
-                console.log("✅ New image captured!");
-                showNotification("✅ Image captured successfully! Reloading...");
+            if (data.status === "Captured & Inferred") {
+                console.log("✅ Image captured and inference completed!");
+                showNotification("✅ Image captured & processed! Reloading...");
 
                 setTimeout(() => {
-                    location.reload();  // 🚀 Auto reload the page
+                    location.reload();  // Refresh the page to display the updated image
                 }, 2000);
             } else {
                 console.error("❌ Error:", data.error);
-                showNotification("❌ Error capturing image!", "error");
+                showNotification("❌ Error capturing or processing image!", "error");
                 button.disabled = false;
                 button.textContent = "PERFORM INFERENCE";
             }
@@ -163,14 +160,12 @@ function performInference() {
             button.textContent = "PERFORM INFERENCE";
         })
         .finally(() => {
-            // Step 3: Re-enable scheduled capture after inference
             setTimeout(() => {
                 fetch('/enable_schedule', { method: 'POST' })
                     .then(() => console.log("✅ Scheduled capture re-enabled!"));
-            }, 5000);  // Wait 5 seconds before re-enabling
+            }, 5000);
         });
 }
-
 
 // Show a notification on the screen
 function showNotification(message, type = "success") {
