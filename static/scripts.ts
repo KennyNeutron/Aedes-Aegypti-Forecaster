@@ -1,5 +1,16 @@
-// Maintains the state of image galleries.
-const galleries = {
+/* 
+Maintains the state of image galleries.
+*/
+interface Gallery {
+    images: string[];
+    currentIndex: number;
+}
+
+interface Galleries {
+    [key: string]: Gallery;
+}
+
+const galleries: Galleries = {
     'gallery': {
         images: [],
         currentIndex: 0
@@ -10,29 +21,33 @@ const galleries = {
     }
 };
 
-// Updates the display data on the home page.
-function updateData() {
+/* 
+Updates the display data on the home page.
+*/
+function updateData(): void {
     fetch("/data")
         .then(response => response.json())
-        .then(data => {
-            let splitDateTime = data.time.split(" ");
-            document.getElementById("time").textContent = splitDateTime[1];
-            document.getElementById("date").textContent = splitDateTime[0];
-            document.getElementById("temperature").textContent = data.temperature.toFixed(2);
+        .then((data: { time: string; temperature: number }) => {
+            let splitDateTime: string[] = data.time.split(" ");
+            document.getElementById("time")!.textContent = splitDateTime[1];
+            document.getElementById("date")!.textContent = splitDateTime[0];
+            document.getElementById("temperature")!.textContent = data.temperature.toFixed(2);
 
-            let currentHour = parseInt(splitDateTime[1].split(":")[0]);
-            let nextCapture = currentHour >= 20 ? "07:00 AM (Tomorrow)" :
+            let currentHour: number = parseInt(splitDateTime[1].split(":")[0]);
+            let nextCapture: string = currentHour >= 20 ? "07:00 AM (Tomorrow)" :
                               currentHour >= 7 ? "08:00 PM" : "07:00 AM";
-            document.getElementById("next-capture").textContent = nextCapture;
+            document.getElementById("next-capture")!.textContent = nextCapture;
         })
         .catch(error => console.error("Error fetching data:", error));
 }
 
-// Loads images from the server for a specified gallery.
-function loadImages(apiEndpoint, galleryId) {
+/* 
+Loads images from the server for a specified gallery.
+*/
+function loadImages(apiEndpoint: string, galleryId: string): void {
     fetch(apiEndpoint)
         .then(response => response.json())
-        .then(data => {
+        .then((data: { images: string[] }) => {
             if (data.images && data.images.length > 0) {
                 galleries[galleryId].images = data.images;
                 galleries[galleryId].currentIndex = 0;  // Resets index when images are loaded
@@ -44,18 +59,20 @@ function loadImages(apiEndpoint, galleryId) {
         .catch(error => console.error("Error fetching images from", apiEndpoint, ":", error));
 }
 
-// Displays the current image in a specified gallery.
-function displayImage(galleryId) {
-    const gallery = document.getElementById(galleryId);
-    const galleryInfo = galleries[galleryId];
+/* 
+Displays the current image in a specified gallery.
+*/
+function displayImage(galleryId: string): void {
+    const gallery: HTMLElement = document.getElementById(galleryId)!;
+    const galleryInfo: Gallery = galleries[galleryId];
     gallery.innerHTML = "";  // Clears the current content
     if (galleryInfo.images.length > 0) {
-        let img = document.createElement("img");
+        let img: HTMLImageElement = document.createElement("img");
         img.src = galleryInfo.images[galleryInfo.currentIndex];
         img.classList.add("active");
         gallery.appendChild(img);
 
-        let filename = document.createElement("p");
+        let filename: HTMLParagraphElement = document.createElement("p");
         filename.textContent = "Filename: " + galleryInfo.images[galleryInfo.currentIndex].split('/').pop();
         gallery.appendChild(filename);
     } else {
@@ -63,16 +80,20 @@ function displayImage(galleryId) {
     }
 }
 
-// Changes the displayed image in a specified gallery based on direction.
-function changeImage(direction, galleryId) {
-    const galleryInfo = galleries[galleryId];
+/* 
+Changes the displayed image in a specified gallery based on direction.
+*/
+function changeImage(direction: number, galleryId: string): void {
+    const galleryInfo: Gallery = galleries[galleryId];
     galleryInfo.currentIndex = (galleryInfo.currentIndex + direction + galleryInfo.images.length) % galleryInfo.images.length;
     displayImage(galleryId);
 }
 
-// Confirms and clears all data in the database.
-function clearDatabase() {
-    let password = prompt("Enter admin password to clear the database:");
+/* 
+Confirms and clears all data in the database.
+*/
+function clearDatabase(): void {
+    let password: string | null = prompt("Enter admin password to clear the database:");
     if (password) {
         fetch('/clear-data', {
             method: 'POST',
@@ -80,7 +101,7 @@ function clearDatabase() {
             body: JSON.stringify({ password: password })
         })
         .then(response => response.json())
-        .then(data => {
+        .then((data: { status: string }) => {
             if (data.status === 'Database cleared') {
                 alert('Database has been cleared.');
                 location.reload();
@@ -95,29 +116,29 @@ function clearDatabase() {
     }
 }
 
-
-// Initiates the download of the data log as a CSV file.
-function downloadCSV() {
+/* 
+Initiates the download of the data log as a CSV file.
+*/
+function downloadCSV(): void {
     window.location.href = '/download-data'; // Navigates to download data endpoint
 }
 
-
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function(): void {
     if (document.getElementById("RunTest")) {
         fetch('/RunTest_Images')
             .then(response => response.json())
-            .then(data => {
+            .then((data: { images: string[] }) => {
                 console.log("Received image data:", data);
-                const gallery = document.getElementById('RunTest');
+                const gallery: HTMLElement = document.getElementById('RunTest')!;
                 gallery.innerHTML = "";
 
                 if (data.images.length > 0) {
-                    let img = document.createElement("img");
+                    let img: HTMLImageElement = document.createElement("img");
                     img.src = data.images[0];
                     img.classList.add("active");
                     gallery.appendChild(img);
 
-                    let filename = document.createElement("p");
+                    let filename: HTMLParagraphElement = document.createElement("p");
                     filename.textContent = "Filename: " + data.images[0].split('/').pop();
                     gallery.appendChild(filename);
                 } else {
@@ -128,8 +149,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-function performInference() {
-    const button = document.querySelector(".button_default");
+function performInference(): void {
+    const button: HTMLButtonElement = document.querySelector(".button_default") as HTMLButtonElement;
     button.disabled = true;
     button.textContent = "Capturing & Processing...";  // Update UI to show processing state
 
@@ -137,7 +158,7 @@ function performInference() {
 
     fetch('/RunTest_Capture', { method: 'POST' })  // Run capture and inference
         .then(response => response.json())
-        .then(data => {
+        .then((data: { status: string; error?: string }) => {
             if (data.status === "Captured & Inferred") {
                 console.log("✅ Image captured and inference completed!");
                 showNotification("✅ Image captured & processed! Reloading...");
@@ -160,9 +181,11 @@ function performInference() {
         });
 }
 
-// Show a notification on the screen
-function showNotification(message, type = "success") {
-    const notification = document.createElement("div");
+/* 
+Show a notification on the screen
+*/
+function showNotification(message: string, type: string = "success"): void {
+    const notification: HTMLDivElement = document.createElement("div");
     notification.textContent = message;
     notification.className = `notification ${type}`;
     document.body.appendChild(notification);
