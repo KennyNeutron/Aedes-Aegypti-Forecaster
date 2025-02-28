@@ -26,11 +26,10 @@ The **Aedes aegypti Forecaster** is a smart mosquito trap system designed to det
 
 ### 🖥 Software & Libraries
 
-- **Python (Flask, OpenCV, NumPy, Requests)**
-- **SQLite (Data Logging)**
-- **Roboflow API (Inference)**
-- **JavaScript (Frontend Interactions)**
-- **HTML + CSS (User Interface)**
+- **Python (Flask, OpenCV, NumPy, Requests, SQLite3)**
+- **Roboflow API (Inference Processing)**
+- **JavaScript (Frontend Interactions & Dynamic Updates)**
+- **HTML + CSS (User Interface Design)**
 
 ---
 
@@ -66,18 +65,30 @@ The application runs on **http://0.0.0.0:5000**.
 The system provides an interactive **Flask-based web dashboard** with the following features:
 
 ### 📷 **Home Page**
+
 - Displays **current date & temperature**.
 - Shows **next scheduled image capture**.
+- Provides an option to **test inference**.
 
 ### 🖼 **Gallery**
+
 - View **all captured images**.
+- Navigate through **previous and next images**.
 
 ### 🔬 **Inference**
+
 - Displays processed images with **mosquito detection results**.
+- Supports image navigation for viewing results.
 
 ### 📊 **Data Log**
+
 - Shows recorded **mosquito count and temperature**.
 - Provides **CSV export** and **database clear** options.
+
+### 🛠 **Test Inference**
+
+- Allows users to manually **capture and process an image**.
+- Displays the latest **test inference image**.
 
 ---
 
@@ -86,18 +97,22 @@ The system provides an interactive **Flask-based web dashboard** with the follow
 ```
 📂 project_root/
 ├── 📄 main.py          # Flask application backend
+├── 📄 synctime.py      # Synchronizes system time with RTC
+├── 📄 DS3231_SetTime.py # Sets RTC time manually
 ├── 📂 templates/       # HTML templates for web UI
 │   ├── 📄 base.html
 │   ├── 📄 index.html
 │   ├── 📄 gallery.html
 │   ├── 📄 inference.html
 │   ├── 📄 data_log.html
+│   ├── 📄 RunTest.html
 ├── 📂 static/          # CSS, JavaScript, and images
 │   ├── 📄 styles.css
 │   ├── 📄 scripts.js
 │   ├── 📂 images/
 ├── 📂 captured_images/  # Stored captured images
 ├── 📂 inference_output/ # Processed images with bounding boxes
+├── 📂 system_test/      # Test inference image storage
 ├── 📄 FAA_DB.db        # SQLite database
 ├── 📄 requirements.txt # Required dependencies
 ```
@@ -107,7 +122,7 @@ The system provides an interactive **Flask-based web dashboard** with the follow
 ## 🏆 Acknowledgments
 
 - **Raspberry Pi Foundation** - For the computing power.
-- **Roboflow** - For providing the **Mosquito Detection Model**.
+- **Roboflow** - For providing the **AI Server**.
 - **Adafruit** - For the **DS3231 RTC Module**.
 - **Flask Community** - For the **web framework**.
 
