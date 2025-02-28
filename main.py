@@ -37,6 +37,7 @@ DATABASE_PATH = 'FAA_DB.db'
 CLEAR_DB_PASSWORD = os.getenv('CLEAR_DB_PASSWORD', 'FAA_Forecaster2025')
 
 scheduled_capture_enable = True  # Flag to enable/disable scheduled capture
+scheduled_capture_hascaptured = False
 
 def capture_image():
     """Captures an image using the Raspberry Pi Camera Module 2 at scheduled times."""
@@ -99,20 +100,25 @@ def run_inference_later(image_path, filename):
     print("⏳ Scheduling inference in 30 seconds...")
 
 def schedule_capture():
-    """Schedules image capture at 7 AM and 8 PM daily, but can be disabled."""
+    """Schedules image capture at 7 AM and 8 PM daily, ensuring it runs only once per scheduled time."""
+    global scheduled_capture_enable, scheduled_capture_hascaptured
+
     while True:
-        global scheduled_capture_enable
-        print(f"⏰ Current Time: {rtc.datetime.tm_hour}:{rtc.datetime.tm_min}, Scheduled Capture Enable: {scheduled_capture_enable}")  # Debugging
         now = rtc.datetime
-        if now.tm_hour == 7 and now.tm_min == 0 or now.tm_hour == 20 and now.tm_min == 0:
-            if scheduled_capture_enable:
+        print(f"⏰ Current Time: {now.tm_hour}:{now.tm_min}, Scheduled Capture Enabled: {scheduled_capture_enable}, Has Captured: {scheduled_capture_hascaptured}")  # Debugging
+
+        if (now.tm_hour == 7 and now.tm_min == 0) or (now.tm_hour == 20 and now.tm_min == 0):
+            if scheduled_capture_enable and not scheduled_capture_hascaptured:
                 print("📸 Triggering scheduled capture...")
                 capture_image()
-                funct_disable_scheduled_capture()
-                time.sleep
-        else:
-            funct_enable_schedule_capture()
-        time.sleep(6)
+                scheduled_capture_hascaptured = True  # Ensure it captures only once per scheduled time
+
+        # Reset flag after an hour to avoid double capture
+        if (now.tm_hour == 8 and now.tm_min == 0) or (now.tm_hour == 21 and now.tm_min == 0):
+            scheduled_capture_hascaptured = False
+
+        time.sleep(35)  # Reduce frequency of loop execution
+
 
 def funct_disable_scheduled_capture():
     global scheduled_capture_enable
@@ -122,21 +128,6 @@ def funct_enable_schedule_capture():
     global scheduled_capture_enable
     scheduled_capture_enable = True
 
-@app.route('/disable_schedule', methods=['POST'])
-def disable_schedule_capture():
-    """Disables the scheduled capture temporarily."""
-    global scheduled_capture_enable
-    scheduled_capture_enable = False
-    print("🚫 Scheduled capture DISABLED!")
-    return jsonify({"status": "Disabled"})
-
-@app.route('/enable_schedule', methods=['POST'])
-def enable_schedule_capture():
-    """Re-enables the scheduled capture."""
-    global scheduled_capture_enable
-    scheduled_capture_enable = True
-    print("✅ Scheduled capture ENABLED!")
-    return jsonify({"status": "Enabled"})
 
 def log_data(datetime_str, faa_count, temperature):
     """Logs mosquito data into the database."""
@@ -311,6 +302,8 @@ def RunTest_Capture():
 
         # Remove the original image (only keeping the inferred one)
         os.remove(image_path)
+
+        log_data(f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d}_test_{rtc.datetime.tm_hour}:{rtc.datetime.tm_min}", faa_count, rtc.temperature)
 
         return jsonify({"status": "Captured & Inferred", "image": f"/system_test/{output_filename}"})
 

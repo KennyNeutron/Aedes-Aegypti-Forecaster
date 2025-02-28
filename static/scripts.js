@@ -135,8 +135,7 @@ function performInference() {
 
     showNotification("📸 Capturing and running inference...");
 
-    fetch('/disable_schedule', { method: 'POST' })
-        .then(() => fetch('/RunTest_Capture', { method: 'POST' }))  // Run capture and inference
+    fetch('/RunTest_Capture', { method: 'POST' })  // Run capture and inference
         .then(response => response.json())
         .then(data => {
             if (data.status === "Captured & Inferred") {
@@ -158,12 +157,6 @@ function performInference() {
             showNotification("❌ Error communicating with server!", "error");
             button.disabled = false;
             button.textContent = "PERFORM INFERENCE";
-        })
-        .finally(() => {
-            setTimeout(() => {
-                fetch('/enable_schedule', { method: 'POST' })
-                    .then(() => console.log("✅ Scheduled capture re-enabled!"));
-            }, 5000);
         });
 }
 
