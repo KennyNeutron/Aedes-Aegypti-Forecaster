@@ -117,7 +117,7 @@ def schedule_capture():
         if (now.tm_hour == 8 and now.tm_min == 0) or (now.tm_hour == 21 and now.tm_min == 0):
             scheduled_capture_hascaptured = False
 
-        time.sleep(35)  # Reduce frequency of loop execution
+        time.sleep(50)  # Reduce frequency of loop execution
 
 
 def funct_disable_scheduled_capture():
