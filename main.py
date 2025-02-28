@@ -85,7 +85,7 @@ def run_inference(image_path, filename):
 
         timestamp = f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d} {'AM' if rtc.datetime.tm_hour < 12 else 'PM'}"
         info_text = f"{timestamp} | FAA Count: {faa_count} | Temp: {rtc.temperature:.1f} degC"
-        cv2.putText(image, info_text, (10, image.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        cv2.putText(image, info_text, (10, image.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         cv2.imwrite(output_path, image)
         print(f"✅ Inference result saved at {output_path}")
@@ -294,7 +294,7 @@ def RunTest_Capture():
 
         timestamp = f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d} {'AM' if rtc.datetime.tm_hour < 12 else 'PM'}"
         info_text = f"{timestamp} | FAA Count: {faa_count} | Temp: {rtc.temperature:.1f} degC"
-        cv2.putText(image, info_text, (10, image.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        cv2.putText(image, info_text, (10, image.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         # Save the inferred image, replacing the original
         cv2.imwrite(output_path, image)
@@ -303,7 +303,7 @@ def RunTest_Capture():
         # Remove the original image (only keeping the inferred one)
         os.remove(image_path)
 
-        log_data(f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d}_test_{rtc.datetime.tm_hour}:{rtc.datetime.tm_min}", faa_count, rtc.temperature)
+        log_data(f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d}_test_{rtc.datetime.tm_hour:02d}:{rtc.datetime.tm_min:02d}", faa_count, rtc.temperature)
 
         return jsonify({"status": "Captured & Inferred", "image": f"/system_test/{output_filename}"})
 
