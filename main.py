@@ -103,17 +103,25 @@ def schedule_capture():
     global disable_schedule
     while True:
         print(f"⏰ Current Time: {rtc.datetime.tm_hour}:{rtc.datetime.tm_min}, Schedule Disabled: {disable_schedule}")  # Debugging
-
         if not disable_schedule:  # Only run if NOT disabled
-            print("schedule_capture is running...")  # Debugging
+            #print("schedule_capture is running...")  # Debugging
             now = rtc.datetime
             if now.tm_hour == 7 and now.tm_min == 0 or now.tm_hour == 20 and now.tm_min == 0:
                 print("📸 Triggering scheduled capture...")
                 capture_image()
-                disable_schedule_capture()
+                funct_disable_scheduled_capture()
                 time.sleep(60)  # Prevents repeated captures
             else:
-                enable_schedule_capture()
+                funct_enable_schedule_capture()
+        time.sleep(6)
+
+def funct_disable_scheduled_capture():
+    global disable_schedule
+    disable_schedule = True
+
+def funct_enable_schedule_capture():
+    global disable_schedule
+    disable_schedule = False
 
 @app.route('/disable_schedule', methods=['POST'])
 def disable_schedule_capture():
