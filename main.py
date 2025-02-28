@@ -36,6 +36,8 @@ DATABASE_PATH = 'FAA_DB.db'
 # Set a password for clearing the database (Change this in the environment settings)
 CLEAR_DB_PASSWORD = os.getenv('CLEAR_DB_PASSWORD', 'FAA_Forecaster2025')
 
+disable_schedule = False  # Flag to enable/disable scheduled capture
+
 def capture_image():
     """Captures an image using the Raspberry Pi Camera Module 2 at scheduled times."""
     now = rtc.datetime
@@ -96,14 +98,38 @@ def run_inference_later(image_path, filename):
     threading.Timer(30, run_inference, args=[image_path, filename]).start()
     print("⏳ Scheduling inference in 30 seconds...")
 
-
 def schedule_capture():
-    """Schedules image capture at 7 AM and 8 PM daily."""
+    """Schedules image capture at 7 AM and 8 PM daily, but can be disabled."""
+    global disable_schedule
     while True:
-        now = rtc.datetime
-        if now.tm_hour == 7 and now.tm_min == 0 or now.tm_hour == 20 and now.tm_min == 0:
-            capture_image()
-            time.sleep(60)  # Prevents repeated captures at the scheduled time
+        print(f"⏰ Current Time: {rtc.datetime.tm_hour}:{rtc.datetime.tm_min}, Schedule Disabled: {disable_schedule}")  # Debugging
+
+        if not disable_schedule:  # Only run if NOT disabled
+            print("schedule_capture is running...")  # Debugging
+            now = rtc.datetime
+            if now.tm_hour == 7 and now.tm_min == 0 or now.tm_hour == 20 and now.tm_min == 0:
+                print("📸 Triggering scheduled capture...")
+                capture_image()
+                disable_schedule_capture()
+                time.sleep(60)  # Prevents repeated captures
+            else:
+                enable_schedule_capture()
+
+@app.route('/disable_schedule', methods=['POST'])
+def disable_schedule_capture():
+    """Disables the scheduled capture temporarily."""
+    global disable_schedule
+    disable_schedule = True
+    print("🚫 Scheduled capture DISABLED!")
+    return jsonify({"status": "Disabled"})
+
+@app.route('/enable_schedule', methods=['POST'])
+def enable_schedule_capture():
+    """Re-enables the scheduled capture."""
+    global disable_schedule
+    disable_schedule = False
+    print("✅ Scheduled capture ENABLED!")
+    return jsonify({"status": "Enabled"})
 
 def log_data(datetime_str, faa_count, temperature):
     """Logs mosquito data into the database."""
@@ -222,5 +248,33 @@ def get_RunTest_Images(filename):
     """Serves images from the system_test folder"""
     return send_from_directory(TEST_INFERENCE_FOLDER, filename)
 
+@app.route('/RunTest_Capture', methods=['POST'])
+def RunTest_Capture():
+    """Deletes old images, captures a new one, and saves it to system_test/"""
+    try:
+        # Step 1: Delete the old image
+        files = [f for f in os.listdir(TEST_INFERENCE_FOLDER) if f.endswith(".jpg")]
+        for file in files:
+            os.remove(os.path.join(TEST_INFERENCE_FOLDER, file))
+        print("🗑️ Deleted old image(s) in system_test.")
+
+        # Step 2: Capture a new image
+        now = rtc.datetime
+        filename = f"RunTest_{now.tm_year}_{now.tm_mon:02d}_{now.tm_mday:02d}_{now.tm_hour:02d}_{now.tm_min:02d}.jpg"
+        image_path = os.path.join(TEST_INFERENCE_FOLDER, filename)
+
+        print(f"📸 Capturing new image: {image_path}...")
+        subprocess.run(["libcamera-still", "-o", image_path, "--width", "1920", "--height", "1080", "--timeout", "1"], check=True)
+        print("✅ Image captured and saved.")
+
+        return jsonify({"status": "Captured", "image": f"/system_test/{filename}"})
+
+    except Exception as e:
+        print(f"❌ Capture Error: {e}")
+        return jsonify({"status": "Error", "error": str(e)})
+
 if __name__ == '__main__':
+    threading.Thread(target=schedule_capture, daemon=True).start()
+    print("🚀 Starting Flask server...")
+    print(f"schedule_capture status: {disable_schedule}")
     app.run(host='0.0.0.0', port=5000, debug=True)

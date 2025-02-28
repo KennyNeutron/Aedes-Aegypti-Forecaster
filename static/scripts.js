@@ -128,3 +128,58 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
+function performInference() {
+    const button = document.querySelector(".button_default");
+    button.disabled = true;  // Disable button
+    button.textContent = "Capturing...";  // Show capturing status
+
+    showNotification("📸 Capturing image...");
+
+    // Step 1: Disable scheduled capture before inference
+    fetch('/disable_schedule', { method: 'POST' })
+        .then(() => {
+            return fetch('/RunTest_Capture', { method: 'POST' })  // Step 2: Perform inference
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "Captured") {
+                console.log("✅ New image captured!");
+                showNotification("✅ Image captured successfully! Reloading...");
+
+                setTimeout(() => {
+                    location.reload();  // 🚀 Auto reload the page
+                }, 2000);
+            } else {
+                console.error("❌ Error:", data.error);
+                showNotification("❌ Error capturing image!", "error");
+                button.disabled = false;
+                button.textContent = "PERFORM INFERENCE";
+            }
+        })
+        .catch(error => {
+            console.error("❌ Fetch Error:", error);
+            showNotification("❌ Error communicating with server!", "error");
+            button.disabled = false;
+            button.textContent = "PERFORM INFERENCE";
+        })
+        .finally(() => {
+            // Step 3: Re-enable scheduled capture after inference
+            setTimeout(() => {
+                fetch('/enable_schedule', { method: 'POST' })
+                    .then(() => console.log("✅ Scheduled capture re-enabled!"));
+            }, 5000);  // Wait 5 seconds before re-enabling
+        });
+}
+
+
+// Show a notification on the screen
+function showNotification(message, type = "success") {
+    const notification = document.createElement("div");
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);  // Remove notification after 3 seconds
+}
