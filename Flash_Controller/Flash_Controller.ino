@@ -7,7 +7,7 @@
 CRGB leds[Num_LED];
 
 bool last_flash_status = false;
-uint8_t flash_duration = 65;
+uint8_t flash_duration = 3;
 
 void setup() {
   pinMode(flash_Input, INPUT_PULLUP);
@@ -26,21 +26,15 @@ void setup() {
 }
 
 void loop() {
-  if (digitalRead(flash_Input) && last_flash_status != digitalRead(flash_Input)) {
+  if (digitalRead(flash_Input) == 1) {
     perform_flash(flash_duration);
-    last_flash_status = digitalRead(flash_Input);
   } else {
     flash_Turn_Off();
   }
 }
 
 void perform_flash(uint8_t flash_duration) {
-  for (uint8_t a = 0; a < 10; a++) {
-    flash_Turn_Off();
-    delay(50);
-    flash_Turn_On();
-    delay(50);
-  }
+  flash_Turn_On();
   delay(flash_duration * 1000);
 }
 

@@ -11,8 +11,16 @@ from datetime import datetime
 import subprocess
 import sqlite3
 import csv
+import RPi.GPIO as GPIO
 
 app = Flask(__name__)
+
+# Define the GPIO pin number
+GPIO_PIN = 23  # Use any available GPIO pin
+
+# Set up GPIO
+GPIO.setmode(GPIO.BCM)  # Use Broadcom pin numbering (BCM mode)
+GPIO.setup(GPIO_PIN, GPIO.OUT)  # Set GPIO as an output
 
 # Initialize the DS3231 real-time clock
 i2c = board.I2C()
@@ -38,6 +46,8 @@ CLEAR_DB_PASSWORD = os.getenv('CLEAR_DB_PASSWORD', 'FAA_Forecaster2025')
 
 scheduled_capture_enable = True  # Flag to enable/disable scheduled capture
 scheduled_capture_hascaptured = False
+
+inference_type = "scheduled"
 
 def capture_image():
     """Captures an image using the Raspberry Pi Camera Module 2 at scheduled times."""
@@ -86,9 +96,9 @@ def run_inference(image_path, filename):
         timestamp = f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d} {'AM' if rtc.datetime.tm_hour < 12 else 'PM'}"
         info_text = f"{timestamp} | FAA Count: {faa_count} | Temp: {rtc.temperature:.1f} degC"
         cv2.putText(image, info_text, (10, image.shape[0] - 20), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-
         cv2.imwrite(output_path, image)
         print(f"✅ Inference result saved at {output_path}")
+        print("====================================================================== > LOGGING DATA")
         log_data(f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d} {'AM' if rtc.datetime.tm_hour < 12 else 'PM'}", faa_count, rtc.temperature)
 
     except Exception as e:
@@ -100,25 +110,22 @@ def run_inference_later(image_path, filename):
     print("⏳ Scheduling inference in 30 seconds...")
 
 def schedule_capture():
-    """Schedules image capture at 7 AM and 8 PM daily, ensuring it runs only once per scheduled time."""
-    global scheduled_capture_enable, scheduled_capture_hascaptured
-
     while True:
+        """Schedules image capture at 7 AM and 8 PM daily, ensuring it runs only once per scheduled time."""
+        global scheduled_capture_enable, scheduled_capture_hascaptured
         now = rtc.datetime
         print(f"⏰ Current Time: {now.tm_hour}:{now.tm_min}, Scheduled Capture Enabled: {scheduled_capture_enable}, Has Captured: {scheduled_capture_hascaptured}")  # Debugging
-
         if (now.tm_hour == 7 and now.tm_min == 0) or (now.tm_hour == 20 and now.tm_min == 0):
-            if scheduled_capture_enable and not scheduled_capture_hascaptured:
+            if scheduled_capture_enable and scheduled_capture_hascaptured == False:
+                GPIO.output(GPIO_PIN, GPIO.HIGH) #turn ON flash
                 print("📸 Triggering scheduled capture...")
-                capture_image()
                 scheduled_capture_hascaptured = True  # Ensure it captures only once per scheduled time
+                capture_image()
+        elif (now.tm_min != 0):
+                scheduled_capture_hascaptured = False
 
-        # Reset flag after an hour to avoid double capture
-        if (now.tm_hour == 8 and now.tm_min == 0) or (now.tm_hour == 21 and now.tm_min == 0):
-            scheduled_capture_hascaptured = False
-
-        time.sleep(50)  # Reduce frequency of loop execution
-
+        time.sleep(10)  # Reduce frequency of loop execution
+        GPIO.output(GPIO_PIN, GPIO.LOW) #turn OFF flash
 
 def funct_disable_scheduled_capture():
     global scheduled_capture_enable
@@ -250,6 +257,7 @@ def get_RunTest_Images(filename):
 def RunTest_Capture():
     """Deletes old images, captures a new one, runs inference, and saves only the processed image."""
     try:
+        GPIO.output(GPIO_PIN, GPIO.HIGH) #turn ON flash
         # Step 1: Delete old images in system_test
         files = [f for f in os.listdir(TEST_INFERENCE_FOLDER) if f.endswith(".jpg")]
         for file in files:
@@ -302,8 +310,10 @@ def RunTest_Capture():
 
         # Remove the original image (only keeping the inferred one)
         os.remove(image_path)
-
+        global inference_type
+        inference_type = "manual"
         log_data(f"{rtc.datetime.tm_year}-{rtc.datetime.tm_mon:02d}-{rtc.datetime.tm_mday:02d}_test_{rtc.datetime.tm_hour:02d}:{rtc.datetime.tm_min:02d}", faa_count, rtc.temperature)
+        GPIO.output(GPIO_PIN, GPIO.LOW) #turn OFF flash
 
         return jsonify({"status": "Captured & Inferred", "image": f"/system_test/{output_filename}"})
 
