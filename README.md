@@ -1,129 +1,108 @@
-# Aedes aegypti Forecaster
+# Aedes Aegypti Forecaster
 
-The **Aedes aegypti Forecaster** is a smart mosquito trap system designed to detect, count, and log **female Aedes aegypti mosquitoes** using a **Raspberry Pi 4 Model B (8GB RAM)**, **Raspberry Pi Camera Module v2**, and a **DS3231 Real-Time Clock (RTC)**. The system uses **computer vision** powered by **Roboflow** for mosquito detection and logs data in an **SQLite database**.
+## Project Overview
+
+The **Aedes Aegypti Forecaster** is an AI-powered mosquito tracking system that uses image recognition to count female Aedes aegypti mosquitoes. The system is designed to predict mosquito populations based on environmental factors like temperature. The project runs on a **Raspberry Pi 4 Model B (8GB RAM)**, utilizing **a Raspberry Pi Camera Module v2** and **a DS3231 RTC sensor** for timestamped data collection.
 
 ## Features
 
-- 📸 **Automated Image Capture**: Captures images at **7:00 AM and 8:00 PM** daily.
-- 🦟 **Mosquito Detection & Counting**: Uses **Roboflow's AI model** to identify and count **female Aedes aegypti mosquitoes**.
-- 🌡 **Temperature Logging**: Records **ambient temperature** from the **DS3231 RTC**.
-- 🗂 **Data Logging**: Saves detected mosquito count and temperature readings to an **SQLite database**.
-- 📊 **Web Dashboard**: A **Flask-based web interface** for viewing **captured images, inference results, and logged data**.
-- 📥 **CSV Export & Database Management**: Supports **downloading mosquito count logs** and clearing the database.
-- 🎨 **Dark-Themed UI**: Stylish, responsive **web interface** with easy navigation.
+- **Automated Mosquito Counting**: Uses Roboflow-trained YOLO model for mosquito detection.
+- **Scheduled Image Capture**: Takes pictures twice a day (7 AM & 8 PM) using the Raspberry Pi Camera Module v2.
+- **Temperature Logging**: DS3231 sensor records ambient temperature and syncs time.
+- **Data Storage & Prediction**: Logs mosquito counts and temperature in a **MySQL database**.
+- **Web-Based Dashboard**: Frontend with **HTML, JavaScript, and CSS** to display captured data.
+- **Flask Backend**: Manages image processing, inference, and API communications.
+- **Inference Testing**: Allows users to test mosquito detection manually via a web interface.
 
----
+## Project Structure
 
-## System Overview
+```
+Aedes-Agypti-Forecaster/
+│── backend/
+│   ├── main.py                     # Core backend logic (image capture, inference, scheduling, database logging)
+│   ├── synctime.py                 # Syncs Raspberry Pi time with DS3231 RTC
+│   ├── DS3231_SetTime.py           # Sets DS3231 RTC time
+│   ├── inference.py                # Runs inference on locally stored images
+│   ├── inference_hosted_api.py     # Uses Roboflow's hosted API for inference
+│   ├── setup_database.py           # Initializes MySQL database tables
+│   ├── gpio_control.py             # Handles GPIO interactions for external components
+│── frontend/
+│   ├── templates/
+│   │   ├── index.html              # Main dashboard page
+│   │   ├── base.html               # UI layout template
+│   │   ├── gallery.html            # Displays captured mosquito images
+│   │   ├── inference.html          # Shows mosquito detection results
+│   │   ├── data_log.html           # Displays mosquito count logs
+│   │   ├── RunTest.html            # Test page for inference
+│   ├── static/
+│   │   ├── scripts.js              # Handles frontend logic and API interactions
+│   │   ├── styles.css              # Styles for web interface
+|   ├── ts/
+│   │   ├── dataFetcher.ts          # Handles data fetching for frontend logic and API interactions
+│   │   ├── imgGallery.ts           # Handles data fetching for gallery images
+│   │   ├── inferenceHandler.ts     # Handles data fetching for the inferences
+│   │   ├── scripts.ts              # TS code for the script for generating scripts.js
+│── hardware/
+│   ├── 3D Design/                  # 3D enclosure models for Raspberry Pi case
+│── archive/                        # Older versions and experimental scripts
+│── requirements.txt                # Dependencies for running the project
+│── README.md                       # Project documentation
+```
 
-### 🏗 Hardware Components
+## Installation
+
+### Prerequisites
 
 - **Raspberry Pi 4 Model B (8GB RAM)**
 - **Raspberry Pi Camera Module v2**
-- **DS3231 Real-Time Clock (RTC)**
-- **Sticky Paper Trap**
-- **Enclosure (3D Printed)**
+- **DS3231 RTC Module**
+- **MySQL Database**
+- **Python 3.10+**
 
-### 🖥 Software & Libraries
+### Setup
 
-- **Python (Flask, OpenCV, NumPy, Requests, SQLite3)**
-- **Roboflow API (Inference Processing)**
-- **JavaScript (Frontend Interactions & Dynamic Updates)**
-- **HTML + CSS (User Interface Design)**
+1. **Clone the repository**:
 
----
+   ```sh
+   git clone https://github.com/KennyNeutron/Aedes-Agypti-Forecaster.git
+   cd Aedes-Agypti-Forecaster
+   ```
 
-## 📌 Installation Guide
+2. **Install dependencies**:
 
-### 1️⃣ Prerequisites
+   ```sh
+   pip install -r requirements.txt
+   ```
 
-Ensure your **Raspberry Pi 4** is set up with:
+3. **Setup MySQL database**:
 
-- **Raspberry Pi OS (64-bit)**
-- **Python 3.x**
-- **Flask Framework**
-- **Required Dependencies** (see `requirements.txt`)
+   ```sh
+   python setup_database.py
+   ```
 
-### 2️⃣ Install Dependencies
+4. **Run the backend**:
 
-```bash
-pip install -r requirements.txt
-```
+   ```sh
+   python main.py
+   ```
 
-### 3️⃣ Run the Application
+5. **Access the web interface**:
+   Open a browser and go to `http://localhost:5000`.
 
-```bash
-python main.py
-```
+## Data Prediction
 
-The application runs on **http://0.0.0.0:5000**.
+Using **linear regression**, the system predicts mosquito populations based on **temperature trends** over 15 days. This is visualized in an analytics dashboard.
 
----
+## Future Improvements
 
-## 🌍 Web Interface
+- Add **real-time mosquito classification**
+- Implement **SMS/email alerts** for mosquito surges
+- Integrate **climate-based forecasting models**
 
-The system provides an interactive **Flask-based web dashboard** with the following features:
+## License
 
-### 📷 **Home Page**
-
-- Displays **current date & temperature**.
-- Shows **next scheduled image capture**.
-- Provides an option to **test inference**.
-
-### 🖼 **Gallery**
-
-- View **all captured images**.
-- Navigate through **previous and next images**.
-
-### 🔬 **Inference**
-
-- Displays processed images with **mosquito detection results**.
-- Supports image navigation for viewing results.
-
-### 📊 **Data Log**
-
-- Shows recorded **mosquito count and temperature**.
-- Provides **CSV export** and **database clear** options.
-
-### 🛠 **Test Inference**
-
-- Allows users to manually **capture and process an image**.
-- Displays the latest **test inference image**.
+This project is under the MIT License.
 
 ---
 
-## 🛠 Code Structure
-
-```
-📂 project_root/
-├── 📄 main.py          # Flask application backend
-├── 📄 synctime.py      # Synchronizes system time with RTC
-├── 📄 DS3231_SetTime.py # Sets RTC time manually
-├── 📂 templates/       # HTML templates for web UI
-│   ├── 📄 base.html
-│   ├── 📄 index.html
-│   ├── 📄 gallery.html
-│   ├── 📄 inference.html
-│   ├── 📄 data_log.html
-│   ├── 📄 RunTest.html
-├── 📂 static/          # CSS, JavaScript, and images
-│   ├── 📄 styles.css
-│   ├── 📄 scripts.js
-│   ├── 📂 images/
-├── 📂 captured_images/  # Stored captured images
-├── 📂 inference_output/ # Processed images with bounding boxes
-├── 📂 system_test/      # Test inference image storage
-├── 📄 FAA_DB.db        # SQLite database
-├── 📄 requirements.txt # Required dependencies
-```
-
----
-
-## 🏆 Acknowledgments
-
-- **Raspberry Pi Foundation** - For the computing power.
-- **Roboflow** - For providing the **AI Server**.
-- **Adafruit** - For the **DS3231 RTC Module**.
-- **Flask Community** - For the **web framework**.
-
----
+_Last updated: March 2025_
